@@ -2,6 +2,8 @@
 {
     using System.ComponentModel.DataAnnotations.Schema;
 
+    using Domain.Events;
+
     public abstract class BaseEntity
     {
         public string Id { get; protected set; }

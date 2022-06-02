@@ -12,6 +12,7 @@
     using Domain.Interfaces;
 
     using Application.Interfaces;
+    using Domain.Entities.Identity;
 
     public class ApplicationDbContext : IdentityDbContext<User, UserRole, string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {

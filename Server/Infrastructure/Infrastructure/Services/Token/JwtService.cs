@@ -8,13 +8,12 @@
     using Microsoft.Extensions.Options;
     using Microsoft.IdentityModel.Tokens;
 
-    using Domain.Entities;
-
     using Models;
 
     using Shared.Exceptions;
 
     using Application.Interfaces;
+    using Domain.Entities.Identity;
 
     public class JwtService : IJwtService
     {

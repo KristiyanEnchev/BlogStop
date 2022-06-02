@@ -12,8 +12,6 @@
 
     using Persistence.Context;
 
-    using Domain.Entities;
-
     using Models;
 
     using Infrastructure.Services.Identity;
@@ -22,6 +20,7 @@
     using Application.Interfaces;
     using System.Text.Json.Serialization;
     using System.Text.Json;
+    using Domain.Entities.Identity;
 
     public static class Startup
     {
