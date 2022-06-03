@@ -79,6 +79,8 @@
         {
             builder.ConfigureKestrel((context, serverOptions) =>
             {
+                serverOptions.ListenAnyIP(8080);
+
                 serverOptions.ConfigureHttpsDefaults(options =>
                 {
                     options.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
@@ -98,7 +100,8 @@
                     .UseRouting()
                     .UseCors("CleanArchitecture")
                     .UseAuthentication()
-                    .UseAuthorization();
+                    .UseAuthorization()
+                    .UseEndpoints(endpoints => endpoints.MapEndpoints());
 
             return builder;
         }
