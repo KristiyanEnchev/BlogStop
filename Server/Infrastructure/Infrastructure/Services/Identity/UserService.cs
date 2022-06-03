@@ -10,10 +10,11 @@
 
     using Models.User;
 
+    using Domain.Entities.Identity;
+
     using Shared;
     using Shared.Exceptions;
     using Shared.Interfaces;
-    using Domain.Entities.Identity;
 
     public class UserService : IUserService
     {

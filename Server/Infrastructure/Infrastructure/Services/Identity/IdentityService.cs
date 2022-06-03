@@ -12,6 +12,7 @@
     using Application.Interfaces;
 
     using Models.User;
+
     using Domain.Entities.Identity;
 
     internal class IdentityService : IIdentityService

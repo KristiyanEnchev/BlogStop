@@ -13,6 +13,7 @@
     using Shared.Exceptions;
 
     using Application.Interfaces;
+
     using Domain.Entities.Identity;
 
     public class JwtService : IJwtService
