@@ -40,7 +40,7 @@
             services.AddSwaggerDocumentation();
             services.AddRouting(options => options.LowercaseUrls = true);
 
-            services.AddCors();
+            services.AddCorsPolicy(config);
 
             services.AddHealth(config);
             services.AddScoped<IUser, CurrentUser>();
@@ -106,17 +106,23 @@
             return builder;
         }
 
-        public static IServiceCollection AddCors(this IServiceCollection services)
+        public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration config)
         {
-            services.AddCors(options =>
+            var originsString = config.GetValue<string>("Cors:Origins");
+
+            if (string.IsNullOrWhiteSpace(originsString))
             {
-                options.AddPolicy("CleanArchitecture",
-                    builder => builder
-                       .AllowAnyHeader()
-                       .AllowAnyMethod()
-                       .AllowCredentials()
-                       .WithOrigins("http://localhost:3000"));
-            });
+                return services;
+            }
+
+            var origins = originsString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            services.AddCors(opt =>
+                opt.AddPolicy("CleanArchitecture", policy =>
+                    policy.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .WithOrigins(origins)));
 
             return services;
         }
