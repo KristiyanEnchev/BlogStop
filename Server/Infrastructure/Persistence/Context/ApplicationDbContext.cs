@@ -10,9 +10,9 @@
 
     using Domain.Entities;
     using Domain.Interfaces;
+    using Domain.Entities.Identity;
 
     using Application.Interfaces;
-    using Domain.Entities.Identity;
 
     public class ApplicationDbContext : IdentityDbContext<User, UserRole, string, IdentityUserClaim<string>, IdentityUserRole<string>, IdentityUserLogin<string>, IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
@@ -52,7 +52,7 @@
                 .Where(e => e.State is EntityState.Added or EntityState.Modified);
 
             var userId = _user.Id;
-            var currentTime = DateTimeOffset.UtcNow;
+            var currentTime = DateTime.UtcNow;
 
             foreach (var entry in entries)
             {

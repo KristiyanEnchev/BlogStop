@@ -11,6 +11,7 @@
     using Microsoft.AspNetCore.Server.Kestrel.Https;
 
     using Application;
+    using Application.Common;
     using Application.Interfaces;
 
     using Web.Services;
@@ -30,7 +31,14 @@
             services.AddHttpContextAccessor();
             services.AddControllers().AddApplicationPart(Assembly.GetExecutingAssembly()).AddJsonOptions(options =>
             {
-                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                var defaultOptions = JsonSerializerOptionsProvider.CreateDefaultOptions();
+                options.JsonSerializerOptions.PropertyNamingPolicy = defaultOptions.PropertyNamingPolicy;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = defaultOptions.DefaultIgnoreCondition;
+
+                foreach (var converter in defaultOptions.Converters)
+                {
+                    options.JsonSerializerOptions.Converters.Add(converter);
+                }
             });
 
             services.AddApplication();

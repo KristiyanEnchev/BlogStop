@@ -1,7 +1,8 @@
 ﻿namespace Models.User
 {
-    using Domain.Entities.Identity;
     using Mapster;
+
+    using Domain.Entities.Identity;
 
     public class UserListDto : BaseIdentityAuditableDto<UserListDto, User>, IMapFrom<User>
     {

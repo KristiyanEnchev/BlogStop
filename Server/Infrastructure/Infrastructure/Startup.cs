@@ -8,8 +8,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-    using MediatR;
-
     using Persistence.Context;
 
     using Models;
@@ -17,9 +15,9 @@
     using Infrastructure.Services.Identity;
     using Infrastructure.Services.Token;
 
+    using Application.Common;
     using Application.Interfaces;
-    using System.Text.Json.Serialization;
-    using System.Text.Json;
+
     using Domain.Entities.Identity;
 
     public static class Startup
@@ -37,17 +35,9 @@
 
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
-            var jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
-            };
-
-            services.AddSingleton(jsonOptions);
+            services.AddSingleton(JsonSerializerOptionsProvider.CreateDefaultOptions());
 
             services
-                .AddTransient<IMediator, Mediator>()
                 .AddTransient<IUserService, UserService>();
 
             return services;
