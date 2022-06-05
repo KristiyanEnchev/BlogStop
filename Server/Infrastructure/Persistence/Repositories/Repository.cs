@@ -5,28 +5,32 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.EntityFrameworkCore;
 
+    using Domain.Events;
     using Domain.Entities;
+    using Domain.Interfaces;
 
     using Mapster;
 
     using Persistence.Context;
 
     using Shared.Interfaces;
-    using Domain.Interfaces;
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseAuditableEntity
     {
         private readonly ApplicationDbContext _context;
         private readonly DbSet<TEntity> _dbSet;
         private readonly ILogger<Repository<TEntity>> _logger;
+        private readonly IDomainEventDispatcher _eventDispatcher;
 
         public Repository(
             ApplicationDbContext context,
-            ILogger<Repository<TEntity>> logger)
+            ILogger<Repository<TEntity>> logger,
+            IDomainEventDispatcher eventDispatcher)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _dbSet = context.Set<TEntity>();
+            _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
         }
 
         public virtual async Task<TDto?> GetByIdAsync<TDto>(string id, CancellationToken cancellationToken = default)
@@ -98,6 +102,9 @@
             try
             {
                 var result = await _dbSet.AddAsync(entity, cancellationToken);
+
+                entity.AddDomainEvent(EntityCreatedEvent.WithEntity(entity));
+
                 return result.Entity;
             }
             catch (Exception ex)
@@ -112,6 +119,9 @@
             try
             {
                 _dbSet.Update(entity);
+
+                entity.AddDomainEvent(EntityUpdatedEvent.WithEntity(entity));
+
                 await Task.CompletedTask;
             }
             catch (Exception ex)
@@ -134,6 +144,8 @@
                 {
                     _dbSet.Remove(entity);
                 }
+
+                entity.AddDomainEvent(EntityDeletedEvent.WithEntity(entity));
             }
             catch (Exception ex)
             {
@@ -146,7 +158,9 @@
         {
             try
             {
-                return await _context.SaveChangesAsync(cancellationToken);
+                int result = await _context.SaveChangesAsync(cancellationToken);
+
+                return result;
             }
             catch (DbUpdateConcurrencyException ex)
             {
