@@ -8,6 +8,7 @@
     using Persistence.Context;
 
     using Shared.Interfaces;
+
     using Domain.Entities.Identity;
 
     public class IdentityRepository<TEntity> : IIdentityRepository<TEntity>

@@ -6,10 +6,11 @@
 
     using Persistence.Context;
     using Persistence.Repositories;
+
+    using Domain.Events;
     using Domain.Interfaces;
 
     using Shared.Interfaces;
-    using Domain.Events;
 
     public static class Startup
     {
