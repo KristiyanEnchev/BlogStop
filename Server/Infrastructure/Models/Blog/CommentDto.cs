@@ -13,13 +13,14 @@
         public string AuthorProfilePicture { get; set; }
         public string ParentCommentId { get; set; }
         public int NumberOfLikes { get; set; }
-        public List<CommentDto> Replies { get; set; } = new();
+        public List<string> ReplyIds { get; set; } = new();
 
         public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
         {
             config.NewConfig<Comment, CommentDto>()
                 .Map(dest => dest.AuthorName, src => src.Author.FirstName + " " + src.Author.LastName)
-                .Map(dest => dest.AuthorProfilePicture, src => src.Author.ProfileImage);
+                .Map(dest => dest.AuthorProfilePicture, src => src.Author.ProfileImage)
+                .Map(dest => dest.ReplyIds, src => src.Replies.Select(r => r.Id));
         }
     }
 }

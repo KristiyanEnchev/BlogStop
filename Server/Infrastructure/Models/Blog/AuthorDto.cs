@@ -9,13 +9,13 @@
         public string Bio { get; set; }
         public string ProfileImage { get; set; }
         public string Email { get; set; }
-        public List<BlogPostDto> BlogPosts { get; set; } = new();
+        public List<string> BlogPostIds { get; set; } = new();
 
         public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
         {
             config.NewConfig<Author, AuthorDto>()
                 .Map(dest => dest.Name, src => $"{src.FirstName} {src.LastName}")
-                .Map(dest => dest.BlogPosts, src => src.BlogPosts);
+                .Map(dest => dest.BlogPostIds, src => src.BlogPosts.Select(bp => bp.Id));
         }
     }
 }
