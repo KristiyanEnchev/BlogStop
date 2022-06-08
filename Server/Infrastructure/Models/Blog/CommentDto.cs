@@ -1,7 +1,8 @@
 ﻿namespace Models.Blog
 {
-    using Domain.Entities.Blog;
     using Models;
+
+    using Domain.Entities.Blog;
 
     public class CommentDto : BaseAuditableDto<CommentDto, Comment>
     {

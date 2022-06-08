@@ -10,6 +10,7 @@
 
     using Domain.Entities;
     using Domain.Interfaces;
+    using Domain.Entities.Blog;
     using Domain.Entities.Identity;
 
     using Application.Interfaces;
@@ -25,6 +26,12 @@
             _dispatcher = dispatcher;
             _user = user;
         }
+
+        public virtual DbSet<Author> Authors { get; set; }
+        public virtual DbSet<BlogPost> BlogPosts { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

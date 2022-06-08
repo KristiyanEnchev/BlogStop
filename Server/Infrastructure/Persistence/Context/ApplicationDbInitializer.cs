@@ -4,6 +4,7 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
+    using Domain.Entities.Blog;
     using Domain.Entities.Identity;
 
     using Shared.Interfaces;
@@ -79,6 +80,7 @@
                 if (!await _context.Set<UserRole>().AnyAsync())
                 {
                     await TrySeedAsync();
+                    await SeedBlogDataAsync();
                     _logger.LogInformation("Seeding completed successfully");
                 }
                 else
@@ -170,6 +172,163 @@
                     _logger.LogError("Failed to create standard user: {Errors}", string.Join(", ", createUserResult.Errors.Select(e => e.Description)));
                 }
             }
+        }
+
+        private async Task SeedBlogDataAsync()
+        {
+            _logger.LogInformation("Seeding Blog Data...");
+
+            var authors = await _context.Users.ToListAsync();
+            if (!authors.Any())
+            {
+                _logger.LogWarning("No users found, skipping blog post seeding.");
+                return;
+            }
+
+            var categories = new List<Category>
+            {
+                new() { Name = "Programming", Slug = "programming", Description = "Learn coding & best practices." },
+                new() { Name = "Software Development", Slug = "software-development", Description = "Latest software development trends." },
+                new() { Name = "Tech News", Slug = "tech-news", Description = "Updates on the latest in technology." },
+                new() { Name = "Business & Startups", Slug = "business-startups", Description = "Insights into business growth & startups." },
+                new() { Name = "AI & Machine Learning", Slug = "ai-machine-learning", Description = "Explore the future of AI." }
+            };
+
+            await _context.Categories.AddRangeAsync(categories);
+            await _context.SaveChangesAsync();
+
+            var tags = new List<Tag>
+            {
+                new() { Name = "JavaScript", Slug = "javascript" },
+                new() { Name = "Python", Slug = "python" },
+                new() { Name = "C#", Slug = "csharp" },
+                new() { Name = "AI", Slug = "ai" },
+                new() { Name = "Blockchain", Slug = "blockchain" },
+                new() { Name = "Startups", Slug = "startups" },
+                new() { Name = "Cloud Computing", Slug = "cloud-computing" },
+                new() { Name = "Cybersecurity", Slug = "cybersecurity" },
+                new() { Name = "Mobile Development", Slug = "mobile-development" },
+                new() { Name = "Web Development", Slug = "web-development" }
+            };
+
+            await _context.Tags.AddRangeAsync(tags);
+            await _context.SaveChangesAsync();
+
+            var blogPosts = new List<BlogPost>
+            {
+                new()
+                {
+                    Title = "JavaScript Trends in 2024",
+                    Slug = "javascript-trends-2024",
+                    Excerpt = "What’s coming next in JavaScript?",
+                    Content = "JavaScript continues to evolve with new frameworks...",
+                    FeaturedImage = "https://example.com/javascript.jpg",
+                    IsPublished = true,
+                    CreatedDate = DateTime.UtcNow,
+                    AuthorId = authors[0].Id,
+                    Categories = new List<Category> { categories[0], categories[2] },
+                    Tags = new List<Tag> { tags[0], tags[9] },
+                    ViewCount = 120
+                },
+                new()
+                {
+                    Title = "AI's Role in Software Development",
+                    Slug = "ai-in-software-development",
+                    Excerpt = "How AI is changing how we write code.",
+                    Content = "Artificial Intelligence is now a core part of development...",
+                    FeaturedImage = "https://example.com/ai.jpg",
+                    IsPublished = true,
+                    CreatedDate = DateTime.UtcNow,
+                    AuthorId = authors[1].Id,
+                    Categories = new List<Category> { categories[1], categories[4] },
+                    Tags = new List<Tag> { tags[3], tags[6] },
+                    ViewCount = 200
+                },
+                new()
+                {
+                    Title = "How Startups Can Succeed in 2024",
+                    Slug = "startups-success-2024",
+                    Excerpt = "Key strategies for entrepreneurs.",
+                    Content = "Starting a business requires understanding the market...",
+                    FeaturedImage = "https://example.com/startups.jpg",
+                    IsPublished = true,
+                    CreatedDate = DateTime.UtcNow,
+                    AuthorId = authors[2].Id,
+                    Categories = new List<Category> { categories[3] },
+                    Tags = new List<Tag> { tags[5], tags[7] },
+                    ViewCount = 300
+                },
+                new()
+                {
+                    Title = "Cloud Computing in 2024",
+                    Slug = "cloud-computing-2024",
+                    Excerpt = "The latest trends in cloud services.",
+                    Content = "Cloud computing is now an essential part of IT...",
+                    FeaturedImage = "https://example.com/cloud.jpg",
+                    IsPublished = true,
+                    CreatedDate = DateTime.UtcNow,
+                    AuthorId = authors[0].Id,
+                    Categories = new List<Category> { categories[1] },
+                    Tags = new List<Tag> { tags[6], tags[8] },
+                    ViewCount = 250
+                },
+                new()
+                {
+                    Title = "Cybersecurity Risks in 2024",
+                    Slug = "cybersecurity-risks-2024",
+                    Excerpt = "Protect your data in the modern world.",
+                    Content = "Cybersecurity threats are increasing...",
+                    FeaturedImage = "https://example.com/cybersecurity.jpg",
+                    IsPublished = true,
+                    CreatedDate = DateTime.UtcNow,
+                    AuthorId = authors[1].Id,
+                    Categories = new List<Category> { categories[2] },
+                    Tags = new List<Tag> { tags[7], tags[9] },
+                    ViewCount = 400
+                }
+            };
+
+            await _context.BlogPosts.AddRangeAsync(blogPosts);
+            await _context.SaveChangesAsync();
+
+            var comments = new List<Comment>
+            {
+                new()
+                {
+                    Content = "This was really helpful, thanks!",
+                    IsApproved = true,
+                    BlogPostId = blogPosts[0].Id,
+                    AuthorId = authors[1].Id,
+                    NumberOfLikes = 5
+                },
+                new()
+                {
+                    Content = "Great insights on AI!",
+                    IsApproved = true,
+                    BlogPostId = blogPosts[1].Id,
+                    AuthorId = authors[2].Id,
+                    NumberOfLikes = 8
+                },
+                new()
+                {
+                    Content = "Startups need to focus on marketing too.",
+                    IsApproved = true,
+                    BlogPostId = blogPosts[2].Id,
+                    AuthorId = authors[0].Id,
+                    NumberOfLikes = 3
+                }
+            };
+
+            await _context.Comments.AddRangeAsync(comments);
+            await _context.SaveChangesAsync();
+
+            foreach (var post in blogPosts)
+            {
+                post.ViewCount += new Random().Next(10, 100);
+            }
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Blog Data Seeding Completed.");
         }
     }
 }
