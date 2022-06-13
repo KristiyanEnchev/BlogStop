@@ -14,6 +14,7 @@
         public virtual Comment? ParentComment { get; set; }
         public virtual ICollection<Comment> Replies { get; set; } = new List<Comment>();
 
-        public int NumberOfLikes { get; set; } = 0;
+        public int NumberOfLikes => LikedByUserIds.Count;
+        public List<string> LikedByUserIds { get; set; } = new();
     }
 }

@@ -14,13 +14,14 @@
         public string AuthorId { get; set; }
         public string AuthorName { get; set; }
         public int ViewCount { get; set; }
-        public int CommentCount { get; set; }
+        public int NumberOfLikes { get; set; }
+        public bool IsLikedByUser { get; set; }
 
         public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
         {
             config.NewConfig<BlogPost, BlogPostDto>()
                 .Map(dest => dest.AuthorName, src => $"{src.Author.FirstName} {src.Author.LastName}")
-                .Map(dest => dest.CommentCount, src => src.Comments.Count);
+                .Map(dest => dest.NumberOfLikes, src => src.LikedByUserIds.Count);
         }
     }
 }

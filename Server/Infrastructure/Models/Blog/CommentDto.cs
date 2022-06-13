@@ -14,6 +14,7 @@
         public string AuthorProfilePicture { get; set; }
         public string ParentCommentId { get; set; }
         public int NumberOfLikes { get; set; }
+        public bool IsLikedByUser { get; set; }
         public List<string> ReplyIds { get; set; } = new();
 
         public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
@@ -21,6 +22,7 @@
             config.NewConfig<Comment, CommentDto>()
                 .Map(dest => dest.AuthorName, src => src.Author.FirstName + " " + src.Author.LastName)
                 .Map(dest => dest.AuthorProfilePicture, src => src.Author.ProfileImage)
+                .Map(dest => dest.NumberOfLikes, src => src.LikedByUserIds.Count)
                 .Map(dest => dest.ReplyIds, src => src.Replies.Select(r => r.Id));
         }
     }
