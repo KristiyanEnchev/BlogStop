@@ -6,34 +6,63 @@
 
     using Models.Blog;
 
+    using Shared;
     using Shared.Interfaces;
+
+    using Mapster;
+
+    using Application.Common;
 
     public class BlogService
     {
         private readonly IRepository<BlogPost> _blogRepository;
+        private readonly IRepository<Comment> _commnetRepository;
 
-        public BlogService(IRepository<BlogPost> blogRepository)
+        public BlogService(IRepository<BlogPost> blogRepository, IRepository<Comment> commnetRepository)
         {
             _blogRepository = blogRepository;
+            _commnetRepository = commnetRepository;
         }
 
         public async Task<BlogPostDto?> GetBlogPostAsync(string postId, string userId)
         {
-            var blogPost = await _blogRepository.AsNoTracking()
+            var post = await _blogRepository.AsNoTracking()
                 .Where(bp => bp.Id == postId)
-                .Select(bp => new BlogPostDto
-                {
-                    Id = bp.Id,
-                    Title = bp.Title,
-                    AuthorId = bp.AuthorId,
-                    AuthorName = bp.Author.FirstName + " " + bp.Author.LastName,
-                    ViewCount = bp.ViewCount,
-                    NumberOfLikes = bp.LikedByUserIds.Count,
-                    IsLikedByUser = bp.LikedByUserIds.Contains(userId)
-                })
+                .ProjectToType<BlogPostDto>()
                 .FirstOrDefaultAsync();
 
-            return blogPost;
+            if (post != null)
+            {
+                post.IsLikedByUser = await _blogRepository.AsNoTracking()
+                    .Where(bp => bp.Id == postId && bp.LikedByUserIds.Contains(userId))
+                    .AnyAsync();
+            }
+
+            return post;
+        }
+
+        public async Task<PaginatedResult<CommentDto>> GetCommentsForPostAsync(
+            string postId,
+            string userId,
+            int page = 1,
+            int pageSize = 10,
+            string sortBy = "CreatedDate",
+            string order = "desc")
+        {
+            var comments = await _commnetRepository.AsNoTracking()
+                .Where(c => c.BlogPostId == postId)
+                .Order(sortBy, order)
+                .ProjectToType<CommentDto>()
+                .ToPaginatedListAsync(page, pageSize);
+
+            foreach (var comment in comments.Data)
+            {
+                comment.IsLikedByUser = await _commnetRepository.AsNoTracking()
+                    .Where(c => c.Id == comment.Id && c.LikedByUserIds.Contains(userId))
+                    .AnyAsync();
+            }
+
+            return comments;
         }
     }
 }
