@@ -41,6 +41,32 @@
             return post;
         }
 
+        public async Task<PaginatedResult<BlogPostDto>> GetBlogPostsAsync(
+            int page = 1,
+            int pageSize = 10,
+            string? category = null,
+            string? tag = null,
+            string sortBy = "CreatedDate",
+            string order = "desc")
+        {
+            var query = _blogRepository.AsNoTracking();
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(bp => bp.Categories.Any(c => c.Name == category));
+            }
+
+            if (!string.IsNullOrEmpty(tag))
+            {
+                query = query.Where(bp => bp.Tags.Any(t => t.Name == tag));
+            }
+
+            return await query
+                .Order(sortBy, order)
+                .ProjectToType<BlogPostDto>()
+                .ToPaginatedListAsync(page, pageSize);
+        }
+
         public async Task<PaginatedResult<CommentDto>> GetCommentsForPostAsync(
             string postId,
             string userId,
