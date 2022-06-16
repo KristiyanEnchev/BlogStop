@@ -90,5 +90,25 @@
 
             return comments;
         }
+
+        public async Task<bool> ToggleBlogPostLikeAsync(string postId, string userId)
+        {
+            var post = await _blogRepository.AsTracking()
+                .FirstOrDefaultAsync(bp => bp.Id == postId);
+
+            if (post == null) return false;
+
+            if (post.LikedByUserIds.Contains(userId))
+            {
+                post.LikedByUserIds.Remove(userId);
+            }
+            else
+            {
+                post.LikedByUserIds.Add(userId);
+            }
+
+            await _blogRepository.SaveChangesAsync();
+            return true;
+        }
     }
 }
