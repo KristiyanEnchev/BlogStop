@@ -17,11 +17,19 @@
     {
         private readonly IRepository<BlogPost> _blogRepository;
         private readonly IRepository<Comment> _commnetRepository;
+        private readonly IRepository<Category> _categorytRepository;
+        private readonly IRepository<Tag> _tagRepository;
 
-        public BlogService(IRepository<BlogPost> blogRepository, IRepository<Comment> commnetRepository)
+        public BlogService(
+            IRepository<BlogPost> blogRepository,
+            IRepository<Comment> commnetRepository,
+            IRepository<Category> categorytRepository,
+            IRepository<Tag> tagRepository)
         {
             _blogRepository = blogRepository;
             _commnetRepository = commnetRepository;
+            _categorytRepository = categorytRepository;
+            _tagRepository = tagRepository;
         }
 
         public async Task<BlogPostDto?> GetBlogPostAsync(string postId, string userId)
@@ -110,6 +118,7 @@
             await _blogRepository.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> ToggleCommentLikeAsync(string commentId, string userId)
         {
             var comment = await _commnetRepository.AsTracking()
@@ -128,6 +137,50 @@
 
             await _commnetRepository.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<BlogPostDto> CreateBlogPostAsync(BlogPostRequest request)
+        {
+            var categories = await _categorytRepository.AsNoTracking()
+                .Where(c => request.CategoryIds.Contains(c.Id))
+                .ToListAsync();
+
+            var existingTags = await _tagRepository.AsNoTracking()
+                .Where(t => request.Tags.Contains(t.Name))
+                .ToListAsync();
+
+            var newTags = request.Tags
+                .Where(tag => existingTags.All(et => et.Name != tag))
+                .Select(tag => new Tag { Name = tag, Slug = tag.ToLower().Replace(" ", "-") })
+                .ToList();
+
+            if (newTags.Any())
+            {
+                await _tagRepository.AddRangeAsync(newTags);
+                await _tagRepository.SaveChangesAsync();
+            }
+
+            var tags = new List<Tag>(existingTags);
+            tags.AddRange(newTags);
+
+            var newPost = new BlogPost
+            {
+                Title = request.Title,
+                Slug = request.Slug,
+                Excerpt = request.Excerpt,
+                Content = request.Content,
+                FeaturedImage = request.FeaturedImage,
+                AuthorId = request.AuthorId,
+                Categories = categories,
+                Tags = tags,
+                CreatedDate = DateTime.UtcNow,
+                IsPublished = false
+            };
+
+            await _blogRepository.AddAsync(newPost);
+            await _blogRepository.SaveChangesAsync();
+
+            return newPost.Adapt<BlogPostDto>();
         }
     }
 }

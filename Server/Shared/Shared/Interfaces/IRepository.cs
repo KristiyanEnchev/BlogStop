@@ -18,6 +18,7 @@
         Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
+        Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
         IQueryable<TEntity> AsNoTracking();
         IQueryable<TEntity> AsTracking();
         IQueryable<TEntity> GetAllIncludingDeleted();

@@ -174,6 +174,11 @@
             }
         }
 
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        {
+            await _dbSet.AddRangeAsync(entities, cancellationToken);
+        }
+
         public virtual IQueryable<TEntity> AsNoTracking() => _dbSet.AsNoTracking();
 
         public virtual IQueryable<TEntity> AsTracking() => _dbSet.AsTracking();
