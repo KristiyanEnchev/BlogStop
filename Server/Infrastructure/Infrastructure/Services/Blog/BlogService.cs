@@ -110,5 +110,24 @@
             await _blogRepository.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> ToggleCommentLikeAsync(string commentId, string userId)
+        {
+            var comment = await _commnetRepository.AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+
+            if (comment == null) return false;
+
+            if (comment.LikedByUserIds.Contains(userId))
+            {
+                comment.LikedByUserIds.Remove(userId);
+            }
+            else
+            {
+                comment.LikedByUserIds.Add(userId);
+            }
+
+            await _commnetRepository.SaveChangesAsync();
+            return true;
+        }
     }
 }
