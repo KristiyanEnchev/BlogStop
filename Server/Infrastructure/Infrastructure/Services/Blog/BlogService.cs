@@ -2,6 +2,8 @@
 {
     using Microsoft.EntityFrameworkCore;
 
+    using Mapster;
+
     using Domain.Entities.Blog;
 
     using Models.Blog;
@@ -9,26 +11,24 @@
     using Shared;
     using Shared.Interfaces;
 
-    using Mapster;
-
     using Application.Common;
 
     public class BlogService
     {
         private readonly IRepository<BlogPost> _blogRepository;
-        private readonly IRepository<Comment> _commnetRepository;
-        private readonly IRepository<Category> _categorytRepository;
+        private readonly IRepository<Comment> _commentRepository;
+        private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Tag> _tagRepository;
 
         public BlogService(
             IRepository<BlogPost> blogRepository,
-            IRepository<Comment> commnetRepository,
-            IRepository<Category> categorytRepository,
+            IRepository<Comment> commentRepository,
+            IRepository<Category> categoryRepository,
             IRepository<Tag> tagRepository)
         {
             _blogRepository = blogRepository;
-            _commnetRepository = commnetRepository;
-            _categorytRepository = categorytRepository;
+            _commentRepository = commentRepository;
+            _categoryRepository = categoryRepository;
             _tagRepository = tagRepository;
         }
 
@@ -36,15 +36,20 @@
         {
             var post = await _blogRepository.AsNoTracking()
                 .Where(bp => bp.Id == postId)
-                .ProjectToType<BlogPostDto>()
+                .Select(bp => new BlogPostDto
+                {
+                    Id = bp.Id,
+                    Title = bp.Title,
+                    Slug = bp.Slug,
+                    Excerpt = bp.Excerpt,
+                    FeaturedImage = bp.FeaturedImage,
+                    AuthorId = bp.AuthorId,
+                    AuthorName = $"{bp.Author.FirstName} {bp.Author.LastName}",
+                    ViewCount = bp.ViewCount,
+                    NumberOfLikes = bp.LikedByUserIds.Count,
+                    IsLikedByUser = bp.LikedByUserIds.Contains(userId)
+                })
                 .FirstOrDefaultAsync();
-
-            if (post != null)
-            {
-                post.IsLikedByUser = await _blogRepository.AsNoTracking()
-                    .Where(bp => bp.Id == postId && bp.LikedByUserIds.Contains(userId))
-                    .AnyAsync();
-            }
 
             return post;
         }
@@ -83,18 +88,20 @@
             string sortBy = "CreatedDate",
             string order = "desc")
         {
-            var comments = await _commnetRepository.AsNoTracking()
+            var comments = await _commentRepository.AsNoTracking()
                 .Where(c => c.BlogPostId == postId)
                 .Order(sortBy, order)
-                .ProjectToType<CommentDto>()
+                .Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    AuthorId = c.AuthorId,
+                    AuthorName = $"{c.Author.FirstName} {c.Author.LastName}",
+                    NumberOfLikes = c.LikedByUserIds.Count,
+                    IsLikedByUser = c.LikedByUserIds.Contains(userId),
+                    ParentCommentId = c.ParentCommentId
+                })
                 .ToPaginatedListAsync(page, pageSize);
-
-            foreach (var comment in comments.Data)
-            {
-                comment.IsLikedByUser = await _commnetRepository.AsNoTracking()
-                    .Where(c => c.Id == comment.Id && c.LikedByUserIds.Contains(userId))
-                    .AnyAsync();
-            }
 
             return comments;
         }
@@ -121,7 +128,7 @@
 
         public async Task<bool> ToggleCommentLikeAsync(string commentId, string userId)
         {
-            var comment = await _commnetRepository.AsTracking()
+            var comment = await _commentRepository.AsTracking()
                 .FirstOrDefaultAsync(c => c.Id == commentId);
 
             if (comment == null) return false;
@@ -135,13 +142,13 @@
                 comment.LikedByUserIds.Add(userId);
             }
 
-            await _commnetRepository.SaveChangesAsync();
+            await _commentRepository.SaveChangesAsync();
             return true;
         }
 
         public async Task<BlogPostDto> CreateBlogPostAsync(BlogPostRequest request)
         {
-            var categories = await _categorytRepository.AsNoTracking()
+            var categories = await _categoryRepository.AsNoTracking()
                 .Where(c => request.CategoryIds.Contains(c.Id))
                 .ToListAsync();
 
@@ -181,6 +188,47 @@
             await _blogRepository.SaveChangesAsync();
 
             return newPost.Adapt<BlogPostDto>();
+        }
+
+        public async Task<CommentDto> CreateCommentAsync(string postId, string userId, string content, string? parentCommentId = null)
+        {
+            var newComment = new Comment
+            {
+                BlogPostId = postId,
+                AuthorId = userId,
+                Content = content,
+                ParentCommentId = parentCommentId,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            await _commentRepository.AddAsync(newComment);
+            await _commentRepository.SaveChangesAsync();
+
+            return newComment.Adapt<CommentDto>();
+        }
+
+        public async Task<bool> DeleteBlogPostAsync(string postId)
+        {
+            var post = await _blogRepository.AsTracking()
+                .FirstOrDefaultAsync(bp => bp.Id == postId);
+
+            if (post == null) return false;
+
+            await _blogRepository.DeleteAsync(post);
+            await _blogRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteCommentAsync(string commentId)
+        {
+            var comment = await _commentRepository.AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId);
+
+            if (comment == null) return false;
+
+            await _commentRepository.DeleteAsync(comment);
+            await _commentRepository.SaveChangesAsync();
+            return true;
         }
     }
 }
