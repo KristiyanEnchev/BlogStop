@@ -230,5 +230,53 @@
             await _commentRepository.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpdateBlogPostAsync(string postId, BlogPostRequest request)
+        {
+            var post = await _blogRepository.AsTracking()
+                .Include(bp => bp.Categories)
+                .Include(bp => bp.Tags)
+                .FirstOrDefaultAsync(bp => bp.Id == postId);
+
+            if (post == null) return false;
+
+            post.Title = request.Title;
+            post.Slug = request.Slug;
+            post.Excerpt = request.Excerpt;
+            post.Content = request.Content;
+            post.FeaturedImage = request.FeaturedImage;
+            post.UpdatedDate = DateTime.UtcNow;
+
+            var newCategories = await _categoryRepository.AsNoTracking()
+                .Where(c => request.CategoryIds.Contains(c.Id))
+                .ToListAsync();
+
+            post.Categories.Clear();
+            post.Categories.ToList().AddRange(newCategories);
+
+            var existingTags = await _tagRepository.AsNoTracking()
+                .Where(t => request.Tags.Contains(t.Name))
+                .ToListAsync();
+
+            var newTags = request.Tags
+                .Where(tag => existingTags.All(et => et.Name != tag))
+                .Select(tag => new Tag { Name = tag, Slug = tag.ToLower().Replace(" ", "-") })
+                .ToList();
+
+            if (newTags.Any())
+            {
+                await _tagRepository.AddRangeAsync(newTags);
+                await _tagRepository.SaveChangesAsync();
+            }
+
+            post.Tags.Clear();
+            post.Tags.ToList().AddRange(existingTags);
+            post.Tags.ToList().AddRange(newTags);
+
+            await _blogRepository.UpdateAsync(post);
+            await _blogRepository.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
