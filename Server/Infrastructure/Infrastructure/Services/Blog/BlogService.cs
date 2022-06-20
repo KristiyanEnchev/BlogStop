@@ -278,5 +278,21 @@
 
             return true;
         }
+
+        public async Task<bool> UpdateCommentAsync(string commentId, string userId, string newContent)
+        {
+            var comment = await _commentRepository.AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.AuthorId == userId);
+
+            if (comment == null) return false;
+
+            comment.Content = newContent;
+            comment.UpdatedDate = DateTime.UtcNow;
+
+            await _commentRepository.UpdateAsync(comment);
+            await _commentRepository.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
