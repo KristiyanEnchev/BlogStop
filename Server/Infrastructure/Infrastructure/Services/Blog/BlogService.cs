@@ -12,8 +12,9 @@
     using Shared.Interfaces;
 
     using Application.Common;
+    using Application.Interfaces;
 
-    public class BlogService
+    public class BlogService : IBlogService
     {
         private readonly IRepository<BlogPost> _blogRepository;
         private readonly IRepository<Comment> _commentRepository;

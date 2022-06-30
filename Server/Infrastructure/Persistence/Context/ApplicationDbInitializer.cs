@@ -291,6 +291,8 @@
             await _context.BlogPosts.AddRangeAsync(blogPosts);
             await _context.SaveChangesAsync();
 
+            var random = new Random();
+
             var comments = new List<Comment>
             {
                 new()
@@ -299,7 +301,11 @@
                     IsApproved = true,
                     BlogPostId = blogPosts[0].Id,
                     AuthorId = authors[1].Id,
-                    NumberOfLikes = 5
+                    LikedByUserIds = authors
+                        .OrderBy(_ => random.Next())
+                        .Take(5) 
+                        .Select(a => a.Id)
+                        .ToList()
                 },
                 new()
                 {
@@ -307,7 +313,11 @@
                     IsApproved = true,
                     BlogPostId = blogPosts[1].Id,
                     AuthorId = authors[2].Id,
-                    NumberOfLikes = 8
+                    LikedByUserIds = authors
+                        .OrderBy(_ => random.Next())
+                        .Take(8)
+                        .Select(a => a.Id)
+                        .ToList()
                 },
                 new()
                 {
@@ -315,7 +325,11 @@
                     IsApproved = true,
                     BlogPostId = blogPosts[2].Id,
                     AuthorId = authors[0].Id,
-                    NumberOfLikes = 3
+                    LikedByUserIds = authors
+                        .OrderBy(_ => random.Next())
+                        .Take(3)
+                        .Select(a => a.Id)
+                        .ToList()
                 }
             };
 
