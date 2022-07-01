@@ -295,5 +295,20 @@
 
             return true;
         }
+
+        public async Task<IReadOnlyList<CategoryDto>> GetAllCategoriesAsync()
+        {
+            return await _categoryRepository.AsNoTracking()
+                .ProjectToType<CategoryDto>()
+                .ToListAsync();
+        }
+
+        public async Task<CategoryDto?> GetCategoryByIdAsync(string categoryId)
+        {
+            return await _categoryRepository.AsNoTracking()
+                .Where(c => c.Id == categoryId)
+                .ProjectToType<CategoryDto>()
+                .FirstOrDefaultAsync();
+        }
     }
 }
