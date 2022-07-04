@@ -368,5 +368,46 @@
                 .ProjectToType<TagDto>()
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<TagDto> CreateTagAsync(string name)
+        {
+            var newTag = new Tag
+            {
+                Name = name,
+                Slug = name.ToLower().Replace(" ", "-")
+            };
+
+            await _tagRepository.AddAsync(newTag);
+            await _tagRepository.SaveChangesAsync();
+
+            return newTag.Adapt<TagDto>();
+        }
+
+        public async Task<bool> UpdateTagAsync(string tagId, string name)
+        {
+            var tag = await _tagRepository.AsTracking()
+                .FirstOrDefaultAsync(t => t.Id == tagId);
+
+            if (tag == null) return false;
+
+            tag.Name = name;
+            tag.Slug = name.ToLower().Replace(" ", "-");
+
+            await _tagRepository.UpdateAsync(tag);
+            await _tagRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteTagAsync(string tagId)
+        {
+            var tag = await _tagRepository.AsTracking()
+                .FirstOrDefaultAsync(t => t.Id == tagId);
+
+            if (tag == null) return false;
+
+            await _tagRepository.DeleteAsync(tag);
+            await _tagRepository.SaveChangesAsync();
+            return true;
+        }
     }
 }
