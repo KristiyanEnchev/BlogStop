@@ -353,5 +353,20 @@
             await _categoryRepository.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IReadOnlyList<TagDto>> GetAllTagsAsync()
+        {
+            return await _tagRepository.AsNoTracking()
+                .ProjectToType<TagDto>()
+                .ToListAsync();
+        }
+
+        public async Task<TagDto?> GetTagByIdAsync(string tagId)
+        {
+            return await _tagRepository.AsNoTracking()
+                .Where(t => t.Id == tagId)
+                .ProjectToType<TagDto>()
+                .FirstOrDefaultAsync();
+        }
     }
 }
