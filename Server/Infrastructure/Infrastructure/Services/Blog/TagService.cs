@@ -10,7 +10,9 @@
 
     using Shared.Interfaces;
 
-    public class TagService
+    using Application.Interfaces;
+
+    public class TagService : ITagService
     {
         private readonly IRepository<Tag> _tagRepository;
 

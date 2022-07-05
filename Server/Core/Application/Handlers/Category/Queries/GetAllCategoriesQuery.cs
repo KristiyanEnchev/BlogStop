@@ -1,4 +1,4 @@
-﻿namespace Application.Handlers.Categories.Queries
+﻿namespace Application.Handlers.Category.Queries
 {
     using Microsoft.Extensions.Logging;
 
@@ -7,6 +7,8 @@
     using Shared;
 
     using Models.Blog;
+
+    using Application.Interfaces;
 
     public record GetAllCategoriesQuery : IRequest<Result<IReadOnlyList<CategoryDto>>>;
 

@@ -10,7 +10,9 @@
 
     using Shared.Interfaces;
 
-    public class CategoryService
+    using Application.Interfaces;
+
+    public class CategoryService : ICategoryService
     {
         private readonly IRepository<Category> _categoryRepository;
 
