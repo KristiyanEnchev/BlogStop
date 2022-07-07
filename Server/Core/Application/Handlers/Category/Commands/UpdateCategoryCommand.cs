@@ -1,4 +1,4 @@
-﻿namespace Application.Handlers.Categories.Commands
+﻿namespace Application.Handlers.Category.Commands
 {
     using Microsoft.Extensions.Logging;
 

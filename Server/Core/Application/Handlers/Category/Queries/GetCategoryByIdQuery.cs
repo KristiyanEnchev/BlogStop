@@ -1,4 +1,4 @@
-﻿namespace Application.Handlers.Categories.Queries
+﻿namespace Application.Handlers.Category.Queries
 {
     using Microsoft.Extensions.Logging;
 
