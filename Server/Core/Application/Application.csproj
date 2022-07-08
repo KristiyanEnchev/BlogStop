@@ -20,7 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Handlers\Tag\" />
+	  <Folder Include="Handlers\Tag\Commnads\" />
 	</ItemGroup>
 
 </Project>
