@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Services.Blog
+namespace Infrastructure.Services.Blog
 {
     using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +13,7 @@
 
     using Application.Common;
     using Application.Interfaces;
+    using System.Threading;
 
     public class BlogService : IBlogService
     {
@@ -33,37 +34,36 @@
             _tagRepository = tagRepository;
         }
 
-        public async Task<BlogPostDto?> GetBlogPostAsync(string postId, string userId)
+        public async Task<BlogPostDto> GetBlogPostByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
         {
-            var post = await _blogRepository.AsNoTracking()
-                .Where(bp => bp.Id == postId)
-                .Select(bp => new BlogPostDto
-                {
-                    Id = bp.Id,
-                    Title = bp.Title,
-                    Slug = bp.Slug,
-                    Excerpt = bp.Excerpt,
-                    FeaturedImage = bp.FeaturedImage,
-                    AuthorId = bp.AuthorId,
-                    AuthorName = $"{bp.Author.FirstName} {bp.Author.LastName}",
-                    ViewCount = bp.ViewCount,
-                    NumberOfLikes = bp.LikedByUserIds.Count,
-                    IsLikedByUser = bp.LikedByUserIds.Contains(userId)
-                })
-                .FirstOrDefaultAsync();
+            var blogPostProjection = await _blogRepository
+                .Query()
+                .Include(x => x.Author)
+                .ThenInclude(x => x.User)
+                .ProjectToType<BlogPostDto>()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            return post;
+            if (blogPostProjection == null)
+                return null;
+
+            blogPostProjection.IsLikedByUser = blogPostProjection.LikedByUserIds.Contains(userId);
+
+            return blogPostProjection;
         }
 
-        public async Task<PaginatedResult<BlogPostDto>> GetBlogPostsAsync(
-            int page = 1,
-            int pageSize = 10,
+        public async Task<PaginatedResult<BlogPostDto>> GetPaginatedBlogPostsAsync(
+            int page,
+            int pageSize,
             string? category = null,
             string? tag = null,
             string sortBy = "CreatedDate",
-            string order = "desc")
+            string orderDirection = "desc",
+            string userId = "Anonymous",
+            CancellationToken cancellationToken = default)
         {
-            var query = _blogRepository.AsNoTracking();
+            var query = _blogRepository
+                .IncludeEntity(b => b.Author)
+                .AsNoTracking();
 
             if (!string.IsNullOrEmpty(category))
             {
@@ -75,10 +75,26 @@
                 query = query.Where(bp => bp.Tags.Any(t => t.Name == tag));
             }
 
-            return await query
-                .Order(sortBy, order)
+            query = query.Order(sortBy, orderDirection);
+
+            var count = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ProjectToType<BlogPostDto>()
-                .ToPaginatedListAsync(page, pageSize);
+                .ToListAsync(cancellationToken);
+
+            foreach (var item in items)
+            {
+                item.IsLikedByUser = item.LikedByUserIds.Contains(userId);
+            }
+
+            return PaginatedResult<BlogPostDto>.Create(
+                items,
+                count,
+                page,
+                pageSize);
         }
 
         public async Task<PaginatedResult<CommentDto>> GetCommentsForPostAsync(
@@ -87,30 +103,47 @@
             int page = 1,
             int pageSize = 10,
             string sortBy = "CreatedDate",
-            string order = "desc")
+            string order = "desc",
+            CancellationToken cancellationToken = default)
         {
-            var comments = await _commentRepository.AsNoTracking()
-                .Where(c => c.BlogPostId == postId)
-                .Order(sortBy, order)
+            var query = _commentRepository
+                .IncludeEntity(c => c.Author)
+                .AsNoTracking()
+                .Where(c => c.BlogPostId == postId);
+
+            query = query.Order(sortBy, order);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(c => new CommentDto
                 {
                     Id = c.Id,
                     Content = c.Content,
                     AuthorId = c.AuthorId,
-                    AuthorName = $"{c.Author.FirstName} {c.Author.LastName}",
+                    //AuthorName = $"{c.Author.FirstName} {c.Author.LastName}",
                     NumberOfLikes = c.LikedByUserIds.Count,
                     IsLikedByUser = c.LikedByUserIds.Contains(userId),
-                    ParentCommentId = c.ParentCommentId
+                    ParentCommentId = c.ParentCommentId,
+                    CreatedDate = c.CreatedDate,
+                    UpdatedDate = c.UpdatedDate
                 })
-                .ToPaginatedListAsync(page, pageSize);
+                .ToListAsync(cancellationToken);
 
-            return comments;
+            return PaginatedResult<CommentDto>.Create(
+                items,
+                totalCount,
+                page,
+                pageSize);
         }
 
-        public async Task<bool> ToggleBlogPostLikeAsync(string postId, string userId)
+        public async Task<bool> ToggleBlogPostLikeAsync(string postId, string userId, CancellationToken cancellationToken = default)
         {
-            var post = await _blogRepository.AsTracking()
-                .FirstOrDefaultAsync(bp => bp.Id == postId);
+            var post = await _blogRepository
+                .AsTracking()
+                .FirstOrDefaultAsync(bp => bp.Id == postId, cancellationToken);
 
             if (post == null) return false;
 
@@ -123,14 +156,15 @@
                 post.LikedByUserIds.Add(userId);
             }
 
-            await _blogRepository.SaveChangesAsync();
+            await _blogRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> ToggleCommentLikeAsync(string commentId, string userId)
+        public async Task<bool> ToggleCommentLikeAsync(string commentId, string userId, CancellationToken cancellationToken = default)
         {
-            var comment = await _commentRepository.AsTracking()
-                .FirstOrDefaultAsync(c => c.Id == commentId);
+            var comment = await _commentRepository
+                .AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
 
             if (comment == null) return false;
 
@@ -143,19 +177,21 @@
                 comment.LikedByUserIds.Add(userId);
             }
 
-            await _commentRepository.SaveChangesAsync();
+            await _commentRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<BlogPostDto> CreateBlogPostAsync(BlogPostRequest request)
+        public async Task<BlogPostDto> CreateBlogPostAsync(BlogPostRequest request, CancellationToken cancellationToken = default)
         {
-            var categories = await _categoryRepository.AsNoTracking()
+            var categories = await _categoryRepository
+                .AsNoTracking()
                 .Where(c => request.CategoryIds.Contains(c.Id))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
-            var existingTags = await _tagRepository.AsNoTracking()
+            var existingTags = await _tagRepository
+                .AsNoTracking()
                 .Where(t => request.Tags.Contains(t.Name))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             var newTags = request.Tags
                 .Where(tag => existingTags.All(et => et.Name != tag))
@@ -164,12 +200,12 @@
 
             if (newTags.Any())
             {
-                await _tagRepository.AddRangeAsync(newTags);
-                await _tagRepository.SaveChangesAsync();
+                await _tagRepository.AddRangeAsync(newTags, cancellationToken);
+                await _tagRepository.SaveChangesAsync(cancellationToken);
             }
 
-            var tags = new List<Tag>(existingTags);
-            tags.AddRange(newTags);
+            var allTags = new List<Tag>(existingTags);
+            allTags.AddRange(newTags);
 
             var newPost = new BlogPost
             {
@@ -180,18 +216,18 @@
                 FeaturedImage = request.FeaturedImage,
                 AuthorId = request.AuthorId,
                 Categories = categories,
-                Tags = tags,
+                Tags = allTags,
                 CreatedDate = DateTime.UtcNow,
-                IsPublished = false
+                IsPublished = true,
             };
 
-            await _blogRepository.AddAsync(newPost);
-            await _blogRepository.SaveChangesAsync();
+            await _blogRepository.AddAsync(newPost, cancellationToken);
+            await _blogRepository.SaveChangesAsync(cancellationToken);
 
             return newPost.Adapt<BlogPostDto>();
         }
 
-        public async Task<CommentDto> CreateCommentAsync(string postId, string userId, string content, string? parentCommentId = null)
+        public async Task<CommentDto> CreateCommentAsync(string postId, string userId, string content, string? parentCommentId = null, CancellationToken cancellationToken = default)
         {
             var newComment = new Comment
             {
@@ -202,42 +238,50 @@
                 CreatedDate = DateTime.UtcNow
             };
 
-            await _commentRepository.AddAsync(newComment);
-            await _commentRepository.SaveChangesAsync();
+            await _commentRepository.AddAsync(newComment, cancellationToken);
+            await _commentRepository.SaveChangesAsync(cancellationToken);
 
-            return newComment.Adapt<CommentDto>();
+            var comment = await _commentRepository
+                .IncludeEntity(c => c.Author)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == newComment.Id, cancellationToken);
+
+            return comment.Adapt<CommentDto>();
         }
 
-        public async Task<bool> DeleteBlogPostAsync(string postId)
+        public async Task<bool> DeleteBlogPostAsync(string postId, CancellationToken cancellationToken = default)
         {
-            var post = await _blogRepository.AsTracking()
-                .FirstOrDefaultAsync(bp => bp.Id == postId);
+            var post = await _blogRepository
+                .AsTracking()
+                .FirstOrDefaultAsync(bp => bp.Id == postId, cancellationToken);
 
             if (post == null) return false;
 
-            await _blogRepository.DeleteAsync(post);
-            await _blogRepository.SaveChangesAsync();
+            await _blogRepository.DeleteAsync(post, cancellationToken);
+            await _blogRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteCommentAsync(string commentId)
+        public async Task<bool> DeleteCommentAsync(string commentId, CancellationToken cancellationToken = default)
         {
-            var comment = await _commentRepository.AsTracking()
-                .FirstOrDefaultAsync(c => c.Id == commentId);
+            var comment = await _commentRepository
+                .AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
 
             if (comment == null) return false;
 
-            await _commentRepository.DeleteAsync(comment);
-            await _commentRepository.SaveChangesAsync();
+            await _commentRepository.DeleteAsync(comment, cancellationToken);
+            await _commentRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> UpdateBlogPostAsync(string postId, BlogPostRequest request)
+        public async Task<bool> UpdateBlogPostAsync(string postId, BlogPostRequest request, CancellationToken cancellationToken = default)
         {
-            var post = await _blogRepository.AsTracking()
+            var post = await _blogRepository
+                .AsTracking()
                 .Include(bp => bp.Categories)
                 .Include(bp => bp.Tags)
-                .FirstOrDefaultAsync(bp => bp.Id == postId);
+                .FirstOrDefaultAsync(bp => bp.Id == postId, cancellationToken);
 
             if (post == null) return false;
 
@@ -246,18 +290,24 @@
             post.Excerpt = request.Excerpt;
             post.Content = request.Content;
             post.FeaturedImage = request.FeaturedImage;
+            post.IsPublished = true;
             post.UpdatedDate = DateTime.UtcNow;
 
-            var newCategories = await _categoryRepository.AsNoTracking()
+            var newCategories = await _categoryRepository
+                .AsNoTracking()
                 .Where(c => request.CategoryIds.Contains(c.Id))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             post.Categories.Clear();
-            post.Categories.ToList().AddRange(newCategories);
+            foreach (var category in newCategories)
+            {
+                post.Categories.Add(category);
+            }
 
-            var existingTags = await _tagRepository.AsNoTracking()
+            var existingTags = await _tagRepository
+                .AsNoTracking()
                 .Where(t => request.Tags.Contains(t.Name))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             var newTags = request.Tags
                 .Where(tag => existingTags.All(et => et.Name != tag))
@@ -266,32 +316,35 @@
 
             if (newTags.Any())
             {
-                await _tagRepository.AddRangeAsync(newTags);
-                await _tagRepository.SaveChangesAsync();
+                await _tagRepository.AddRangeAsync(newTags, cancellationToken);
+                await _tagRepository.SaveChangesAsync(cancellationToken);
             }
 
             post.Tags.Clear();
-            post.Tags.ToList().AddRange(existingTags);
-            post.Tags.ToList().AddRange(newTags);
+            foreach (var tag in existingTags.Concat(newTags))
+            {
+                post.Tags.Add(tag);
+            }
 
-            await _blogRepository.UpdateAsync(post);
-            await _blogRepository.SaveChangesAsync();
+            await _blogRepository.UpdateAsync(post, cancellationToken);
+            await _blogRepository.SaveChangesAsync(cancellationToken);
 
             return true;
         }
 
-        public async Task<bool> UpdateCommentAsync(string commentId, string userId, string newContent)
+        public async Task<bool> UpdateCommentAsync(string commentId, string userId, string newContent, CancellationToken cancellationToken = default)
         {
-            var comment = await _commentRepository.AsTracking()
-                .FirstOrDefaultAsync(c => c.Id == commentId && c.AuthorId == userId);
+            var comment = await _commentRepository
+                .AsTracking()
+                .FirstOrDefaultAsync(c => c.Id == commentId && c.AuthorId == userId, cancellationToken);
 
             if (comment == null) return false;
 
             comment.Content = newContent;
             comment.UpdatedDate = DateTime.UtcNow;
 
-            await _commentRepository.UpdateAsync(comment);
-            await _commentRepository.SaveChangesAsync();
+            await _commentRepository.UpdateAsync(comment, cancellationToken);
+            await _commentRepository.SaveChangesAsync(cancellationToken);
 
             return true;
         }

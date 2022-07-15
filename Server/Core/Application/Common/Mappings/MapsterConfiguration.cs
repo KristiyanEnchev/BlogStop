@@ -29,6 +29,7 @@
             try
             {
                 config.Compile();
+                config.CompileProjection();
             }
             catch (Exception ex)
             {

@@ -1,7 +1,13 @@
 ﻿namespace Domain.Entities.Blog
 {
+    using System.ComponentModel.DataAnnotations.Schema;
+
     public class BlogPost : BaseAuditableEntity
     {
+        public BlogPost()
+        {
+
+        }
         public string Title { get; set; }
         public string Slug { get; set; }
         public string Content { get; set; }
@@ -17,6 +23,7 @@
         public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
+        [NotMapped]
         public int NumberOfLikes => LikedByUserIds.Count;
         public List<string> LikedByUserIds { get; set; } = new();
         public int ViewCount { get; set; } = 0;

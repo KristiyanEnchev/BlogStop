@@ -13,7 +13,6 @@
 
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Content).IsRequired();
-            builder.Property(c => c.NumberOfLikes).HasDefaultValue(0);
 
             builder
                 .HasOne(c => c.BlogPost)

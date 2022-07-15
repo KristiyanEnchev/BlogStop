@@ -11,6 +11,10 @@
     using Application.Common.Behaviours;
     using Application.Common.Mappings;
 
+    using Models;
+
+    using Domain.Entities.Blog;
+
     using Shared.Mappings;
 
     public static class Startup
@@ -24,15 +28,11 @@
 
         private static IServiceCollection AddMapperConfig(this IServiceCollection services)
         {
-            var modelAssembly = Assembly.GetAssembly(typeof(Models.TokenSettings))
-                ?? throw new InvalidOperationException(
-                    $"Models assembly not found.");
-
             services.AddMappings(
-                Assembly.GetExecutingAssembly(),
-                modelAssembly,
-                typeof(IMapFrom<>).Assembly
-            );
+                typeof(BaseDto<,>).Assembly, 
+                typeof(BlogPost).Assembly,    
+                typeof(IMapFrom<>).Assembly,
+                Assembly.GetExecutingAssembly());
 
             return services;
         }

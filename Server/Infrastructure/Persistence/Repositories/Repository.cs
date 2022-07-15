@@ -9,18 +9,16 @@
     using Domain.Entities;
     using Domain.Interfaces;
 
-    using Mapster;
-
     using Persistence.Context;
 
     using Shared.Interfaces;
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseAuditableEntity
     {
-        private readonly ApplicationDbContext _context;
-        private readonly DbSet<TEntity> _dbSet;
-        private readonly ILogger<Repository<TEntity>> _logger;
-        private readonly IDomainEventDispatcher _eventDispatcher;
+        protected readonly ApplicationDbContext _context;
+        protected readonly DbSet<TEntity> _dbSet;
+        protected readonly ILogger<Repository<TEntity>> _logger;
+        protected readonly IDomainEventDispatcher _eventDispatcher;
 
         public Repository(
             ApplicationDbContext context,
@@ -33,13 +31,17 @@
             _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
         }
 
-        public virtual async Task<TDto?> GetByIdAsync<TDto>(string id, CancellationToken cancellationToken = default)
-            where TDto : class
+        public virtual IQueryable<TEntity> Query(bool asNoTracking = true)
+        {
+            var query = _dbSet.AsQueryable();
+            return asNoTracking ? query.AsNoTracking() : query;
+        }
+
+        public virtual async Task<TEntity?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             try
             {
-                var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
-                return entity?.Adapt<TDto>();
+                return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -48,15 +50,13 @@
             }
         }
 
-        public virtual async Task<TDto?> FirstOrDefaultAsync<TDto>(
+        public virtual async Task<TEntity?> FirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> predicate,
             CancellationToken cancellationToken = default)
-            where TDto : class
         {
             try
             {
-                var entity = await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
-                return entity?.Adapt<TDto>();
+                return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -65,13 +65,11 @@
             }
         }
 
-        public virtual async Task<IReadOnlyList<TDto>> GetAllAsync<TDto>(CancellationToken cancellationToken = default)
-            where TDto : class
+        public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                var entities = await _dbSet.ToListAsync(cancellationToken);
-                return entities.Adapt<IReadOnlyList<TDto>>();
+                return await _dbSet.ToListAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -80,15 +78,13 @@
             }
         }
 
-        public virtual async Task<IReadOnlyList<TDto>> FindAsync<TDto>(
+        public virtual async Task<IReadOnlyList<TEntity>> FindAsync(
             Expression<Func<TEntity, bool>> predicate,
             CancellationToken cancellationToken = default)
-            where TDto : class
         {
             try
             {
-                var entities = await _dbSet.Where(predicate).ToListAsync(cancellationToken);
-                return entities.Adapt<IReadOnlyList<TDto>>();
+                return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -97,14 +93,21 @@
             }
         }
 
+        public virtual IQueryable<TEntity> IncludeEntity<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+        {
+            return _dbSet.Include(navigationPropertyPath);
+        }
+
+        public virtual IQueryable<TEntity> AsNoTracking() => _dbSet.AsNoTracking();
+        public virtual IQueryable<TEntity> AsTracking() => _dbSet.AsTracking();
+        public virtual IQueryable<TEntity> GetAllIncludingDeleted() => _dbSet.IgnoreQueryFilters();
+
         public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             try
             {
                 var result = await _dbSet.AddAsync(entity, cancellationToken);
-
                 entity.AddDomainEvent(EntityCreatedEvent.WithEntity(entity));
-
                 return result.Entity;
             }
             catch (Exception ex)
@@ -119,9 +122,7 @@
             try
             {
                 _dbSet.Update(entity);
-
                 entity.AddDomainEvent(EntityUpdatedEvent.WithEntity(entity));
-
                 await Task.CompletedTask;
             }
             catch (Exception ex)
@@ -159,7 +160,6 @@
             try
             {
                 int result = await _context.SaveChangesAsync(cancellationToken);
-
                 return result;
             }
             catch (DbUpdateConcurrencyException ex)
@@ -179,13 +179,9 @@
             await _dbSet.AddRangeAsync(entities, cancellationToken);
         }
 
-        public virtual IQueryable<TEntity> AsNoTracking() => _dbSet.AsNoTracking();
-
-        public virtual IQueryable<TEntity> AsTracking() => _dbSet.AsTracking();
-
-        public virtual IQueryable<TEntity> GetAllIncludingDeleted()
+        public virtual async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
         {
-            return _dbSet.IgnoreQueryFilters();
+            return await _dbSet.AnyAsync(e => EF.Property<string>(e, "Id").Equals(id), cancellationToken);
         }
     }
 }

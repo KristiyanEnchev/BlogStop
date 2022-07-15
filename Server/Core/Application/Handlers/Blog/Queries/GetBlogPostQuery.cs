@@ -29,7 +29,7 @@
             {
                 try
                 {
-                    var blogPost = await _blogService.GetBlogPostAsync(request.PostId, _user.Id! ?? "Anonimous");
+                    var blogPost = await _blogService.GetBlogPostByIdAsync(request.PostId, _user.Id! ?? "Anonimous", cancellationToken);
                     return Result<BlogPostDto>.SuccessResult(blogPost!);
                 }
                 catch (Exception ex)

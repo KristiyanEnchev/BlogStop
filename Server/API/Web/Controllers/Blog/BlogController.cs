@@ -2,6 +2,7 @@
 {
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Authorization;
 
     using Application.Handlers.Blog.Commands;
     using Application.Handlers.Blog.Queries;
@@ -35,6 +36,7 @@
             return await Mediator.Send(new GetBlogPostsQuery(page, pageSize, category, tag, sortBy, order)).ToActionResult();
         }
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(Result<BlogPostDto>), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,6 +45,7 @@
             return await Mediator.Send(new CreateBlogPostCommand(request)).ToActionResult();
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,6 +54,7 @@
             return await Mediator.Send(new UpdateBlogPostCommand(id, request)).ToActionResult();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,11 +63,12 @@
             return await Mediator.Send(new DeleteBlogPostCommand(id)).ToActionResult();
         }
 
+        [Authorize]
         [HttpPost("{id}/toggle-like")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         public async Task<ActionResult<Result<bool>>> ToggleLike(string id)
         {
-            return await Mediator.Send(new ToggleBlogPostLikeCommand(id, User.Identity!.Name! ?? "Anonimous")).ToActionResult();
+            return await Mediator.Send(new ToggleBlogPostLikeCommand(id)).ToActionResult();
         }
 
         [HttpGet("{postId}/comments")]
@@ -75,23 +80,25 @@
             [FromQuery] string sortBy = "CreatedDate",
             [FromQuery] string order = "desc")
         {
-            return await Mediator.Send(new GetCommentsForPostQuery(postId, User.Identity!.Name! ?? "Anonimous", page, pageSize, sortBy, order)).ToActionResult();
+            return await Mediator.Send(new GetCommentsForPostQuery(postId, page, pageSize, sortBy, order)).ToActionResult();
         }
 
         [HttpPost("{postId}/comments")]
         [ProducesResponseType(typeof(Result<CommentDto>), StatusCodes.Status201Created)]
         public async Task<ActionResult<Result<CommentDto>>> CreateComment(string postId, [FromBody] CreateCommentCommand request)
         {
-            return await Mediator.Send(new CreateCommentCommand(postId, User.Identity!.Name! ?? "Anonimous", request.Content, request.ParentCommentId)).ToActionResult();
+            return await Mediator.Send(new CreateCommentCommand(postId, request.Content, request.ParentCommentId)).ToActionResult();
         }
 
+        [Authorize]
         [HttpPut("comments/{commentId}")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         public async Task<ActionResult<Result<bool>>> UpdateComment(string commentId, [FromBody] UpdateCommentCommand request)
         {
-            return await Mediator.Send(new UpdateCommentCommand(commentId, User.Identity!.Name! ?? "Anonimous", request.NewContent)).ToActionResult();
+            return await Mediator.Send(new UpdateCommentCommand(commentId, request.NewContent)).ToActionResult();
         }
 
+        [Authorize]
         [HttpDelete("comments/{commentId}")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         public async Task<ActionResult<Result<bool>>> DeleteComment(string commentId)
@@ -99,11 +106,12 @@
             return await Mediator.Send(new DeleteCommentCommand(commentId)).ToActionResult();
         }
 
+        [Authorize]
         [HttpPost("comments/{commentId}/toggle-like")]
         [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
         public async Task<ActionResult<Result<bool>>> ToggleCommentLike(string commentId)
         {
-            return await Mediator.Send(new ToggleCommentLikeCommand(commentId, User.Identity!.Name! ?? "Anonimous")).ToActionResult();
+            return await Mediator.Send(new ToggleCommentLikeCommand(commentId)).ToActionResult();
         }
     }
 }

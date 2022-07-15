@@ -20,6 +20,7 @@
     using Web.Extensions.Healtchecks;
 
     using Infrastructure;
+    using Infrastructure.Services.Blog;
 
     using Persistence;
     using Persistence.Context;
@@ -52,6 +53,9 @@
 
             services.AddHealth(config);
             services.AddScoped<IUser, CurrentUser>();
+            services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ITagService, TagService>();
 
             return services;
         }

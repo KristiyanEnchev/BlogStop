@@ -13,7 +13,6 @@
 
     using Models.Blog;
 
-    [Authorize]
     public class CategoriesController : ApiController
     {
         [HttpGet]

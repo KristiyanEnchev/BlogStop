@@ -13,7 +13,6 @@
 
     using Models.Blog;
 
-    [Authorize]
     public class TagsController : ApiController
     {
         [HttpGet]

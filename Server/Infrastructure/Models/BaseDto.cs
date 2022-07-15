@@ -11,6 +11,7 @@
             config.NewConfig<TEntity, TDto>()
                 .IgnoreNullValues(true)
                 .PreserveReference(true)
+                .Map(dest => dest, src => src)
                 .MaxDepth(3)
                 .Compile();
 

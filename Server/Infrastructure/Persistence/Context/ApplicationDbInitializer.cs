@@ -178,12 +178,30 @@
         {
             _logger.LogInformation("Seeding Blog Data...");
 
-            var authors = await _context.Users.ToListAsync();
-            if (!authors.Any())
+            var users = await _context.Users.ToListAsync();
+            if (users.Count < 2)
             {
-                _logger.LogWarning("No users found, skipping blog post seeding.");
+                _logger.LogError("Not enough users found to seed blog posts.");
                 return;
             }
+
+            var authors = new List<Author>();
+            foreach (var user in users)
+            {
+                var author = await _context.Authors.FirstOrDefaultAsync(a => a.Id == user.Id);
+                if (author == null)
+                {
+                    author = new Author
+                    {
+                        Id = user.Id,
+                        Bio = $"Bio for {user.FirstName} {user.LastName}",
+                        ProfileImage = "https://example.com/default-profile.jpg"
+                    };
+                    await _context.Authors.AddAsync(author);
+                }
+                authors.Add(author);
+            }
+            await _context.SaveChangesAsync();
 
             var categories = new List<Category>
             {
@@ -253,7 +271,7 @@
                     FeaturedImage = "https://example.com/startups.jpg",
                     IsPublished = true,
                     CreatedDate = DateTime.UtcNow,
-                    AuthorId = authors[2].Id,
+                    AuthorId = authors[0].Id,
                     Categories = new List<Category> { categories[3] },
                     Tags = new List<Tag> { tags[5], tags[7] },
                     ViewCount = 300
@@ -291,6 +309,12 @@
             await _context.BlogPosts.AddRangeAsync(blogPosts);
             await _context.SaveChangesAsync();
 
+            if (!blogPosts.Any())
+            {
+                _logger.LogError("No blog posts found, skipping comment seeding.");
+                return;
+            }
+
             var random = new Random();
 
             var comments = new List<Comment>
@@ -312,7 +336,7 @@
                     Content = "Great insights on AI!",
                     IsApproved = true,
                     BlogPostId = blogPosts[1].Id,
-                    AuthorId = authors[2].Id,
+                    AuthorId = authors[0].Id,
                     LikedByUserIds = authors
                         .OrderBy(_ => random.Next())
                         .Take(8)
@@ -324,7 +348,7 @@
                     Content = "Startups need to focus on marketing too.",
                     IsApproved = true,
                     BlogPostId = blogPosts[2].Id,
-                    AuthorId = authors[0].Id,
+                    AuthorId = authors[1].Id,
                     LikedByUserIds = authors
                         .OrderBy(_ => random.Next())
                         .Take(3)

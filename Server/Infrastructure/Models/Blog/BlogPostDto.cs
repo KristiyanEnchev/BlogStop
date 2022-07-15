@@ -1,5 +1,7 @@
 ﻿namespace Models.Blog
 {
+    using Mapster;
+
     using Domain.Entities.Blog;
 
     public class BlogPostDto : BaseAuditableDto<BlogPostDto, BlogPost>
@@ -18,11 +20,14 @@
         public int NumberOfLikes { get; set; }
         public bool IsLikedByUser { get; set; }
 
-        public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
+        [System.Text.Json.Serialization.JsonIgnore]
+        public List<string> LikedByUserIds { get; set; }
+
+        public override void CustomizeMapping(TypeAdapterConfig config)
         {
             config.NewConfig<BlogPost, BlogPostDto>()
-                .Map(dest => dest.AuthorName, src => $"{src.Author.FirstName} {src.Author.LastName}")
-                .Map(dest => dest.NumberOfLikes, src => src.LikedByUserIds.Count);
+                .Map(dest => dest.AuthorName, src => $"{src.Author.User.FirstName} {src.Author.User.LastName}")
+                .PreserveReference(true);
         }
     }
 }

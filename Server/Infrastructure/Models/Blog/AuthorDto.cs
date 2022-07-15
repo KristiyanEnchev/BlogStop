@@ -1,5 +1,7 @@
 ﻿namespace Models.Blog
 {
+    using Mapster;
+
     using Domain.Entities.Blog;
 
     public class AuthorDto : BaseDto<AuthorDto, Author>
@@ -9,13 +11,17 @@
         public string Bio { get; set; }
         public string ProfileImage { get; set; }
         public string Email { get; set; }
-        public List<string> BlogPostIds { get; set; } = new();
+        public List<BlogPostDto> BlogPosts { get; set; }
 
-        public override void CustomizeMapping(Mapster.TypeAdapterConfig config)
+        public override void CustomizeMapping(TypeAdapterConfig config)
         {
             config.NewConfig<Author, AuthorDto>()
-                .Map(dest => dest.Name, src => $"{src.FirstName} {src.LastName}")
-                .Map(dest => dest.BlogPostIds, src => src.BlogPosts.Select(bp => bp.Id));
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src =>
+                $"{src.User.FirstName} {src.User.LastName}".Trim())
+            .Map(dest => dest.Email, src => src.User.Email)
+            .Map(dest => dest.BlogPosts, src => src.BlogPosts)
+            .PreserveReference(true);
         }
     }
 }
