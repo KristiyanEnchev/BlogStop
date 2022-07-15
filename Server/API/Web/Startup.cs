@@ -11,13 +11,13 @@
     using Microsoft.AspNetCore.Server.Kestrel.Https;
 
     using Application;
-    using Application.Common;
     using Application.Interfaces;
 
     using Web.Services;
     using Web.Extensions.Swagger;
     using Web.Extensions.Middleware;
     using Web.Extensions.Healtchecks;
+    using Web.Extensions.Json;
 
     using Infrastructure;
     using Infrastructure.Services.Blog;
@@ -30,17 +30,9 @@
         public static IServiceCollection AddWeb(this IServiceCollection services, IConfiguration config)
         {
             services.AddHttpContextAccessor();
-            services.AddControllers().AddApplicationPart(Assembly.GetExecutingAssembly()).AddJsonOptions(options =>
-            {
-                var defaultOptions = JsonSerializerOptionsProvider.CreateDefaultOptions();
-                options.JsonSerializerOptions.PropertyNamingPolicy = defaultOptions.PropertyNamingPolicy;
-                options.JsonSerializerOptions.DefaultIgnoreCondition = defaultOptions.DefaultIgnoreCondition;
-
-                foreach (var converter in defaultOptions.Converters)
-                {
-                    options.JsonSerializerOptions.Converters.Add(converter);
-                }
-            });
+            services.AddControllers()
+                .AddApplicationPart(Assembly.GetExecutingAssembly())
+                .ConfigureJsonOptions();
 
             services.AddApplication();
             services.AddInfrastructure(config);

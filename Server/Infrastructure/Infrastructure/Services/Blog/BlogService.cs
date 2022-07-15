@@ -1,8 +1,8 @@
 namespace Infrastructure.Services.Blog
 {
-    using Microsoft.EntityFrameworkCore;
+    using System.Threading;
 
-    using Mapster;
+    using Microsoft.EntityFrameworkCore;
 
     using Domain.Entities.Blog;
 
@@ -13,7 +13,6 @@ namespace Infrastructure.Services.Blog
 
     using Application.Common;
     using Application.Interfaces;
-    using System.Threading;
 
     public class BlogService : IBlogService
     {
@@ -36,19 +35,29 @@ namespace Infrastructure.Services.Blog
 
         public async Task<BlogPostDto> GetBlogPostByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
         {
-            var blogPostProjection = await _blogRepository
+            var blogPostDto = await _blogRepository
                 .Query()
-                .Include(x => x.Author)
-                .ThenInclude(x => x.User)
-                .ProjectToType<BlogPostDto>()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .Where(x => x.Id == id)
+                .Select(bp => new BlogPostDto
+                {
+                    Id = bp.Id,
+                    Title = bp.Title,
+                    Slug = bp.Slug,
+                    Content = bp.Content,
+                    Excerpt = bp.Excerpt,
+                    FeaturedImage = bp.FeaturedImage,
+                    AuthorId = bp.AuthorId,
+                    AuthorName = bp.Author.User.UserName,
+                    CreatedDate = bp.CreatedDate,
+                    UpdatedDate = bp.UpdatedDate,
+                    NumberOfLikes = bp.LikedByUserIds.Count,
+                    LikedByUserIds = bp.LikedByUserIds,
+                    IsLikedByUser = bp.LikedByUserIds.Contains(userId),
+                    ViewCount = bp.ViewCount
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            if (blogPostProjection == null)
-                return null;
-
-            blogPostProjection.IsLikedByUser = blogPostProjection.LikedByUserIds.Contains(userId);
-
-            return blogPostProjection;
+            return blogPostDto;
         }
 
         public async Task<PaginatedResult<BlogPostDto>> GetPaginatedBlogPostsAsync(
@@ -62,7 +71,11 @@ namespace Infrastructure.Services.Blog
             CancellationToken cancellationToken = default)
         {
             var query = _blogRepository
-                .IncludeEntity(b => b.Author)
+                .Query()
+                .Include(b => b.Author)
+                .ThenInclude(a => a.User)
+                .Include(b => b.Categories)
+                .Include(b => b.Tags)
                 .AsNoTracking();
 
             if (!string.IsNullOrEmpty(category))
@@ -82,13 +95,23 @@ namespace Infrastructure.Services.Blog
             var items = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ProjectToType<BlogPostDto>()
+                .Select(bp => new BlogPostDto
+                {
+                    Id = bp.Id,
+                    Title = bp.Title,
+                    Slug = bp.Slug,
+                    Excerpt = bp.Excerpt,
+                    FeaturedImage = bp.FeaturedImage,
+                    AuthorId = bp.AuthorId,
+                    AuthorName = bp.Author.User.UserName,
+                    CreatedDate = bp.CreatedDate,
+                    UpdatedDate = bp.UpdatedDate,
+                    NumberOfLikes = bp.LikedByUserIds.Count,
+                    LikedByUserIds = bp.LikedByUserIds,
+                    IsLikedByUser = bp.LikedByUserIds.Contains(userId),
+                    ViewCount = bp.ViewCount
+                })
                 .ToListAsync(cancellationToken);
-
-            foreach (var item in items)
-            {
-                item.IsLikedByUser = item.LikedByUserIds.Contains(userId);
-            }
 
             return PaginatedResult<BlogPostDto>.Create(
                 items,
@@ -107,7 +130,9 @@ namespace Infrastructure.Services.Blog
             CancellationToken cancellationToken = default)
         {
             var query = _commentRepository
-                .IncludeEntity(c => c.Author)
+                .Query()
+                .Include(c => c.Author)
+                .ThenInclude(a => a.User)
                 .AsNoTracking()
                 .Where(c => c.BlogPostId == postId);
 
@@ -123,7 +148,7 @@ namespace Infrastructure.Services.Blog
                     Id = c.Id,
                     Content = c.Content,
                     AuthorId = c.AuthorId,
-                    //AuthorName = $"{c.Author.FirstName} {c.Author.LastName}",
+                    AuthorName = c.Author.User.UserName,
                     NumberOfLikes = c.LikedByUserIds.Count,
                     IsLikedByUser = c.LikedByUserIds.Contains(userId),
                     ParentCommentId = c.ParentCommentId,
@@ -224,7 +249,7 @@ namespace Infrastructure.Services.Blog
             await _blogRepository.AddAsync(newPost, cancellationToken);
             await _blogRepository.SaveChangesAsync(cancellationToken);
 
-            return newPost.Adapt<BlogPostDto>();
+            return await GetBlogPostByIdAsync(newPost.Id, request.AuthorId, cancellationToken);
         }
 
         public async Task<CommentDto> CreateCommentAsync(string postId, string userId, string content, string? parentCommentId = null, CancellationToken cancellationToken = default)
@@ -242,11 +267,22 @@ namespace Infrastructure.Services.Blog
             await _commentRepository.SaveChangesAsync(cancellationToken);
 
             var comment = await _commentRepository
-                .IncludeEntity(c => c.Author)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == newComment.Id, cancellationToken);
+                .Query()
+                .Where(c => c.Id == newComment.Id)
+                .Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    AuthorId = c.AuthorId,
+                    NumberOfLikes = c.LikedByUserIds.Count,
+                    IsLikedByUser = c.LikedByUserIds.Contains(userId),
+                    ParentCommentId = c.ParentCommentId,
+                    CreatedDate = c.CreatedDate,
+                    UpdatedDate = c.UpdatedDate
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            return comment.Adapt<CommentDto>();
+            return comment;
         }
 
         public async Task<bool> DeleteBlogPostAsync(string postId, CancellationToken cancellationToken = default)
@@ -347,6 +383,66 @@ namespace Infrastructure.Services.Blog
             await _commentRepository.SaveChangesAsync(cancellationToken);
 
             return true;
+        }
+
+        public async Task<PaginatedResult<TagDto>> GetTagsForBlogPostAsync(
+            string postId,
+            int page = 1,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _blogRepository.Query()
+                .Where(bp => bp.Id == postId)
+                .SelectMany(bp => bp.Tags)
+                .Select(tag => new TagDto
+                {
+                    Id = tag.Id,
+                    Name = tag.Name,
+                    Slug = tag.Slug
+                });
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return PaginatedResult<TagDto>.Create(
+                items,
+                totalCount,
+                page,
+                pageSize);
+        }
+
+        public async Task<PaginatedResult<CategoryDto>> GetCategoriesForBlogPostAsync(
+            string postId,
+            int page = 1,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _blogRepository.Query()
+                .Where(bp => bp.Id == postId)
+                .SelectMany(bp => bp.Categories)
+                .Select(category => new CategoryDto
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Slug = category.Slug
+                });
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return PaginatedResult<CategoryDto>.Create(
+                items,
+                totalCount,
+                page,
+                pageSize);
         }
     }
 }

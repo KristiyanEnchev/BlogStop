@@ -30,6 +30,13 @@
             builder.HasMany(bp => bp.Tags)
                    .WithMany(t => t.BlogPosts)
                    .UsingEntity(j => j.ToTable("BlogPostTags"));
+                   
+            // Add indexes for common query paths
+            builder.HasIndex(p => p.Slug);
+            builder.HasIndex(p => p.AuthorId);
+            builder.HasIndex(p => p.CreatedDate);
+            builder.HasIndex(p => p.IsPublished);
+            builder.HasIndex(p => p.IsFeatured);
         }
     }
 }

@@ -25,6 +25,12 @@
                 .WithMany()
                 .HasForeignKey(c => c.AuthorId)
                 .OnDelete(DeleteBehavior.Restrict);
+                
+            // Add indexes for common query paths
+            builder.HasIndex(c => c.BlogPostId);
+            builder.HasIndex(c => c.AuthorId);
+            builder.HasIndex(c => c.ParentCommentId);
+            builder.HasIndex(c => c.CreatedDate);
         }
     }
 }

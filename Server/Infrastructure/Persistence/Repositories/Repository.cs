@@ -37,10 +37,16 @@
             return asNoTracking ? query.AsNoTracking() : query;
         }
 
-        public virtual async Task<TEntity?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity?> GetByIdAsync(string id, bool asNoTracking = true, CancellationToken cancellationToken = default)
         {
             try
             {
+                if (asNoTracking)
+                {
+                    return await _dbSet.AsNoTracking()
+                        .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+                }
+                
                 return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
             }
             catch (Exception ex)
@@ -52,11 +58,13 @@
 
         public virtual async Task<TEntity?> FirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> predicate,
+            bool asNoTracking = true,
             CancellationToken cancellationToken = default)
         {
             try
             {
-                return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+                var query = asNoTracking ? _dbSet.AsNoTracking() : _dbSet;
+                return await query.FirstOrDefaultAsync(predicate, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -65,11 +73,12 @@
             }
         }
 
-        public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(bool asNoTracking = true, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await _dbSet.ToListAsync(cancellationToken);
+                var query = asNoTracking ? _dbSet.AsNoTracking() : _dbSet;
+                return await query.ToListAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -80,11 +89,13 @@
 
         public virtual async Task<IReadOnlyList<TEntity>> FindAsync(
             Expression<Func<TEntity, bool>> predicate,
+            bool asNoTracking = true,
             CancellationToken cancellationToken = default)
         {
             try
             {
-                return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
+                var query = asNoTracking ? _dbSet.AsNoTracking() : _dbSet;
+                return await query.Where(predicate).ToListAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -93,10 +104,7 @@
             }
         }
 
-        public virtual IQueryable<TEntity> IncludeEntity<TProperty>(Expression<Func<TEntity, TProperty>> navigationPropertyPath)
-        {
-            return _dbSet.Include(navigationPropertyPath);
-        }
+
 
         public virtual IQueryable<TEntity> AsNoTracking() => _dbSet.AsNoTracking();
         public virtual IQueryable<TEntity> AsTracking() => _dbSet.AsTracking();
@@ -117,19 +125,25 @@
             }
         }
 
-        public virtual async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public virtual void Update(TEntity entity)
         {
             try
             {
                 _dbSet.Update(entity);
                 entity.AddDomainEvent(EntityUpdatedEvent.WithEntity(entity));
-                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating entity");
                 throw;
             }
+        }
+        
+        // For backward compatibility
+        public virtual Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        {
+            Update(entity);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
