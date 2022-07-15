@@ -19,6 +19,8 @@
         public int ViewCount { get; set; }
         public int NumberOfLikes { get; set; }
         public bool IsLikedByUser { get; set; }
+        public List<string> Categories { get; set; }
+        public List<string> Tags { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public List<string> LikedByUserIds { get; set; }
