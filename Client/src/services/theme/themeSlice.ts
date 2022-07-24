@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store";
-import { initializeTheme } from "@/lib/theme.ts";
+import { initializeTheme } from "@/lib/theme";
 
 interface ThemeState {
     isDark: boolean;
