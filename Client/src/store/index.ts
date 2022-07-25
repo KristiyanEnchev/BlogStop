@@ -1,6 +1,25 @@
 import { configureStore, isRejectedWithValue, Middleware, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import toast from 'react-hot-toast';
+import persistReducer from 'redux-persist/es/persistReducer';
+
+import themeReducer from '@/services/theme/themeSlice';
+import authReducer from '@/services/auth/authSlice';
+
+import { authApi } from '@/services/auth/authApi';
+
+const themePersistConfig = {
+    key: 'theme',
+    storage,
+    whitelist: ['isDark']
+};
+
+const authPersistConfig = {
+    key: 'auth',
+    storage,
+    whitelist: ['user', 'token', 'refreshToken', 'refreshTokenExpiryTime']
+};
 
 const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
     if (isRejectedWithValue(action)) {
@@ -14,6 +33,9 @@ const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 };
 
 const rootReducer = combineReducers({
+    auth: persistReducer(authPersistConfig, authReducer),
+    theme: persistReducer(themePersistConfig, themeReducer),
+    [authApi.reducerPath]: authApi.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -26,6 +48,7 @@ export const store = configureStore({
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
         }).concat(
+            authApi.middleware,
             rtkQueryErrorLogger
         ),
     devTools: process.env.NODE_ENV !== 'production',
