@@ -1,4 +1,4 @@
-import { LineChart } from "lucide-react";
+import { Pen } from "lucide-react";
 
 export function Footer() {
     return (
@@ -7,7 +7,7 @@ export function Footer() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-light-text-muted dark:text-dark-text-muted">
                     <span className="flex items-center gap-2">
                         {new Date().getFullYear()} BlogStop
-                        <LineChart className="w-4 h-4 text-accent-500 dark:text-accent-400" />
+                        <Pen className="w-4 h-4 text-accent-500 dark:text-accent-400" />
                         by{" "}
                         <a
                             href="https://kristiyan-enchev-website.web.app/"
