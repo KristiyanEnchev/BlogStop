@@ -14,8 +14,8 @@ export default function AppRoutes() {
         <Routes>
             <Route path="/" element={<MainLayout />}>
                 <Route element={<GuestRoute />}>
-                    <Route path="/login" element={<PageWrapper component={Login} />} />
-                    <Route path="/register" element={<PageWrapper component={Register} />} />
+                    <Route path="login" element={<PageWrapper component={Login} />} />
+                    <Route path="register" element={<PageWrapper component={Register} />} />
                 </Route>
                 <Route element={<ProtectedRoute />}>
                 </Route>

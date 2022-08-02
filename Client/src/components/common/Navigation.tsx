@@ -63,6 +63,9 @@ export function Navigation() {
                                                 <User className="w-4 h-4" />
                                                 <span>Profile</span>
                                             </Link>
+                                            <div className="flex items-center justify-between px-4 py-2">
+                                                <LogoutButton />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -84,7 +87,6 @@ export function Navigation() {
                             </div>
                         )}
 
-                        {user && <LogoutButton className={"px-4 py-2 rounded-lg border border-primary-600 dark:border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-600 dark:hover:bg-primary-500 hover:text-white transition-colors duration-300"} />}
                     </div>
                 </div>
             </div>
