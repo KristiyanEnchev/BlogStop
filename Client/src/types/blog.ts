@@ -18,3 +18,16 @@ export interface BlogPost {
   categories: Category[];
   tags: Tag[];
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+}
