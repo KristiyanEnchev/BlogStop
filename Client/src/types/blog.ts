@@ -65,3 +65,24 @@ export interface CommentRequest {
 export interface LikeRequest {
   blogPostId: string;
 }
+
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
+export interface BlogQueryParams {
+  pageNumber?: number;
+  pageSize?: number;
+  searchTerm?: string;
+  categoryId?: string;
+  tagId?: string;
+  authorId?: string;
+  sortBy?: 'newest' | 'oldest' | 'popular' | 'trending';
+  isPublished?: boolean;
+}
