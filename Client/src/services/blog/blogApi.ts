@@ -20,5 +20,16 @@ export const blogApi = createApi({
             ]
           : [{ type: 'Blog', id: 'LIST' }],
     }),
+    getBlogPostById: builder.query<BlogPost, string>({
+      query: (id) => `blog/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Blog', id }],
+    }),
   }),
 });
+
+export const { 
+  useGetBlogPostsQuery,
+  useGetBlogPostByIdQuery,
+  useGetBlogPostsQuery,
+  useGetBlogPostByIdQuery
+} = blogApi;
