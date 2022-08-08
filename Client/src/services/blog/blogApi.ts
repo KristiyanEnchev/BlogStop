@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithReauth } from '../auth/baseQueryWithReauth';
-import { BlogPost, BlogQueryParams, PaginatedResult } from '@/types/blog';
+import { BlogPost, BlogPostRequest, BlogQueryParams, PaginatedResult } from '@/types/blog';
 
 export const blogApi = createApi({
   reducerPath: 'blogApi',
@@ -24,12 +24,19 @@ export const blogApi = createApi({
       query: (id) => `blog/${id}`,
       providesTags: (result, error, id) => [{ type: 'Blog', id }],
     }),
+    createBlogPost: builder.mutation<BlogPost, BlogPostRequest>({
+      query: (blogPost) => ({
+        url: 'blog',
+        method: 'POST',
+        body: blogPost,
+      }),
+      invalidatesTags: [{ type: 'Blog', id: 'LIST' }],
+    }),
   }),
 });
 
 export const { 
   useGetBlogPostsQuery,
   useGetBlogPostByIdQuery,
-  useGetBlogPostsQuery,
-  useGetBlogPostByIdQuery
+  useCreateBlogPostMutation
 } = blogApi;
