@@ -43,6 +43,16 @@ export const blogApi = createApi({
         { type: 'Blog', id: 'LIST' },
       ],
     }),
+    deleteBlogPost: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `blog/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: 'Blog', id },
+        { type: 'Blog', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -50,5 +60,6 @@ export const {
   useGetBlogPostsQuery,
   useGetBlogPostByIdQuery,
   useCreateBlogPostMutation,
-  useUpdateBlogPostMutation
+  useUpdateBlogPostMutation,
+  useDeleteBlogPostMutation
 } = blogApi;
