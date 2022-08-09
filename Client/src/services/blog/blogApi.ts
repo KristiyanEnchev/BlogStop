@@ -32,11 +32,23 @@ export const blogApi = createApi({
       }),
       invalidatesTags: [{ type: 'Blog', id: 'LIST' }],
     }),
+    updateBlogPost: builder.mutation<BlogPost, { id: string; blogPost: BlogPostRequest }>({
+      query: ({ id, blogPost }) => ({
+        url: `blog/${id}`,
+        method: 'PUT',
+        body: blogPost,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Blog', id },
+        { type: 'Blog', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
 export const { 
   useGetBlogPostsQuery,
   useGetBlogPostByIdQuery,
-  useCreateBlogPostMutation
+  useCreateBlogPostMutation,
+  useUpdateBlogPostMutation
 } = blogApi;
