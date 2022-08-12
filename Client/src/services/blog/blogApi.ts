@@ -69,6 +69,16 @@ export const blogApi = createApi({
       query: () => 'tags',
       providesTags: [{ type: 'Tag', id: 'LIST' }],
     }),
+    getComments: builder.query<Comment[], string>({
+      query: (blogId) => `blog/${blogId}/comments`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'Comment' as const, id })),
+              { type: 'Comment', id: 'LIST' },
+            ]
+          : [{ type: 'Comment', id: 'LIST' }],
+    }),
     addComment: builder.mutation<Comment, { blogId: string; comment: CommentRequest }>({
       query: ({ blogId, comment }) => ({
         url: `blog/${blogId}/comments`,
@@ -92,5 +102,6 @@ export const {
   useUpdateBlogPostMutation,
   useGetCategoriesQuery,
   useGetTagsQuery,
+  useGetCommentsQuery,
   useAddCommentMutation
 } = blogApi;
