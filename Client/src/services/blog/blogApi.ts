@@ -1,11 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithReauth } from '../auth/baseQueryWithReauth';
-import { BlogPost, BlogPostRequest, BlogQueryParams, Category, PaginatedResult } from '@/types/blog';
+import { BlogPost, BlogPostRequest, BlogQueryParams, Category, PaginatedResult, Tag } from '@/types/blog';
 
 export const blogApi = createApi({
   reducerPath: 'blogApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Blog', 'Comment', 'Category'],
+  tagTypes: ['Blog', 'Comment', 'Category', 'Tag'],
   endpoints: (builder) => ({
     getBlogPosts: builder.query<PaginatedResult<BlogPost>, BlogQueryParams>({
       query: (params) => ({
@@ -65,6 +65,10 @@ export const blogApi = createApi({
       query: () => 'categories',
       providesTags: [{ type: 'Category', id: 'LIST' }],
     }),
+    getTags: builder.query<Tag[], void>({
+      query: () => 'tags',
+      providesTags: [{ type: 'Tag', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -75,5 +79,6 @@ export const {
   useDeleteBlogPostMutation,
   useLikeBlogPostMutation,
   useUpdateBlogPostMutation,
-  useGetCategoriesQuery
+  useGetCategoriesQuery,
+  useGetTagsQuery
 } = blogApi;
