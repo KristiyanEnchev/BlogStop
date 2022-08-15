@@ -1,29 +1,27 @@
 export interface BlogPost {
   id: string;
   title: string;
-  content: string;
-  summary: string;
   slug: string;
-  imageUrl?: string;
+  excerpt: string;
+  content: string;
+  featuredImage: string;
+  isFeatured: boolean;
+  isPublished: boolean;
   authorId: string;
   authorName: string;
-  authorImageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-  isPublished: boolean;
   viewCount: number;
-  likeCount: number;
-  readTime: number;
-  categories: Category[];
-  tags: Tag[];
+  numberOfLikes: number;
+  isLikedByUser: boolean;
+  categories: string[];
+  tags: string[];
+  createdDate: string;
+  lastModifiedDate: string;
 }
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  description?: string;
 }
 
 export interface Tag {
@@ -35,54 +33,46 @@ export interface Tag {
 export interface Comment {
   id: string;
   content: string;
-  blogPostId: string;
   authorId: string;
   authorName: string;
-  authorImageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+  postId: string;
   parentCommentId?: string;
-  replies?: Comment[];
-  isEdited: boolean;
+  createdDate: string;
+  lastModifiedDate: string;
+  numberOfLikes: number;
+  isLikedByUser: boolean;
 }
 
 export interface BlogPostRequest {
   title: string;
+  excerpt: string;
   content: string;
-  summary: string;
-  imageUrl?: string;
-  categoryIds: string[];
-  tagIds: string[];
+  featuredImage: string;
+  isFeatured: boolean;
   isPublished: boolean;
+  categories: string[];
+  tags: string[];
 }
 
 export interface CommentRequest {
   content: string;
-  blogPostId: string;
   parentCommentId?: string;
-}
-
-export interface LikeRequest {
-  blogPostId: string;
 }
 
 export interface PaginatedResult<T> {
   items: T[];
-  totalCount: number;
   pageNumber: number;
-  pageSize: number;
   totalPages: number;
+  totalCount: number;
   hasPreviousPage: boolean;
   hasNextPage: boolean;
 }
 
 export interface BlogQueryParams {
-  pageNumber?: number;
+  page?: number;
   pageSize?: number;
-  searchTerm?: string;
-  categoryId?: string;
-  tagId?: string;
-  authorId?: string;
-  sortBy?: 'newest' | 'oldest' | 'popular' | 'trending';
-  isPublished?: boolean;
+  category?: string;
+  tag?: string;
+  sortBy?: string;
+  order?: 'asc' | 'desc';
 }
