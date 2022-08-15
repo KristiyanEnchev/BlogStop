@@ -61,6 +61,32 @@ export const blogApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Blog', id }],
     }),
+    searchBlogPosts: builder.query<PaginatedResult<BlogPost>, { searchTerm: string; page?: number; pageSize?: number }>({
+      query: ({ searchTerm, page = 1, pageSize = 10 }) => ({
+        url: 'blog/search',
+        params: { searchTerm, page, pageSize },
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Blog' as const, id })),
+              { type: 'Blog', id: 'SEARCH' },
+            ]
+          : [{ type: 'Blog', id: 'SEARCH' }],
+    }),
+    getFavoriteBlogPosts: builder.query<PaginatedResult<BlogPost>, { page?: number; pageSize?: number }>({
+      query: ({ page = 1, pageSize = 10 }) => ({
+        url: 'blog/favorites',
+        params: { page, pageSize },
+      }),
+      providesTags: (result) => 
+        result
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Blog' as const, id })),
+              { type: 'Blog', id: 'FAVORITES' },
+            ]
+          : [{ type: 'Blog', id: 'FAVORITES' }],
+    }),
     getCategories: builder.query<Category[], void>({
       query: () => 'categories',
       providesTags: [{ type: 'Category', id: 'LIST' }],
@@ -90,6 +116,17 @@ export const blogApi = createApi({
         { type: 'Comment', id: 'LIST' },
       ],
     }),
+    deleteComment: builder.mutation<void, { blogId: string; commentId: string }>({
+      query: ({ blogId, commentId }) => ({
+        url: `blog/${blogId}/comments/${commentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { blogId, commentId }) => [
+        { type: 'Blog', id: blogId },
+        { type: 'Comment', id: commentId },
+        { type: 'Comment', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -103,5 +140,8 @@ export const {
   useGetCategoriesQuery,
   useGetTagsQuery,
   useGetCommentsQuery,
-  useAddCommentMutation
+  useAddCommentMutation,
+  useDeleteCommentMutation,
+  useSearchBlogPostsQuery,
+  useGetFavoriteBlogPostsQuery
 } = blogApi;
