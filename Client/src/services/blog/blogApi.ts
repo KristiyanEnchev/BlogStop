@@ -1,147 +1,158 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQueryWithReauth } from '../auth/baseQueryWithReauth';
-import { BlogPost, BlogPostRequest, BlogQueryParams, Category, Comment, CommentRequest, PaginatedResult, Tag } from '@/types/blog';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { RootState } from '@/store';
+import {
+    BlogPost,
+    Category,
+    Tag,
+    Comment,
+    BlogPostRequest,
+    CommentRequest,
+    PaginatedResult,
+    BlogQueryParams
+} from '@/types/blog';
 
 export const blogApi = createApi({
-  reducerPath: 'blogApi',
-  baseQuery: baseQueryWithReauth,
-  tagTypes: ['Blog', 'Comment', 'Category', 'Tag'],
-  endpoints: (builder) => ({
-    getBlogPosts: builder.query<PaginatedResult<BlogPost>, BlogQueryParams>({
-      query: (params) => ({
-        url: 'blog',
-        params,
-      }),
-      providesTags: (result) => 
-        result
-          ? [
-              ...result.items.map(({ id }) => ({ type: 'Blog' as const, id })),
-              { type: 'Blog', id: 'LIST' },
-            ]
-          : [{ type: 'Blog', id: 'LIST' }],
+    reducerPath: 'blogApi',
+    baseQuery: fetchBaseQuery({
+        baseUrl: '/api',
+        prepareHeaders: (headers, { getState }) => {
+            const token = (getState() as RootState).auth.token;
+            if (token) {
+                headers.set('authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
-    getBlogPostById: builder.query<BlogPost, string>({
-      query: (id) => `blog/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Blog', id }],
+    tagTypes: ['BlogPosts', 'Categories', 'Tags', 'Comments'],
+    endpoints: (builder) => ({
+        getBlogPosts: builder.query<PaginatedResult<BlogPost>, BlogQueryParams>({
+            query: (params) => ({
+                url: 'blog',
+                params,
+            }),
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.items.map(({ id }) => ({ type: 'BlogPosts' as const, id })),
+                        { type: 'BlogPosts', id: 'LIST' },
+                    ]
+                    : [{ type: 'BlogPosts', id: 'LIST' }],
+        }),
+
+        getBlogPostById: builder.query<BlogPost, string>({
+            query: (id) => `blog/${id}`,
+            providesTags: (result, error, id) => [{ type: 'BlogPosts', id }],
+        }),
+
+        createBlogPost: builder.mutation<BlogPost, BlogPostRequest>({
+            query: (blogPost) => ({
+                url: 'blog',
+                method: 'POST',
+                body: blogPost,
+            }),
+            invalidatesTags: [{ type: 'BlogPosts', id: 'LIST' }],
+        }),
+
+        updateBlogPost: builder.mutation<boolean, { id: string; blogPost: BlogPostRequest }>({
+            query: ({ id, blogPost }) => ({
+                url: `blog/${id}`,
+                method: 'PUT',
+                body: blogPost,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'BlogPosts', id },
+                { type: 'BlogPosts', id: 'LIST' },
+            ],
+        }),
+
+        deleteBlogPost: builder.mutation<boolean, string>({
+            query: (id) => ({
+                url: `blog/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'BlogPosts', id: 'LIST' }],
+        }),
+
+        toggleLikeBlogPost: builder.mutation<boolean, string>({
+            query: (id) => ({
+                url: `blog/${id}/toggle-like`,
+                method: 'POST',
+            }),
+            invalidatesTags: (result, error, id) => [{ type: 'BlogPosts', id }],
+        }),
+
+        getCategories: builder.query<Category[], void>({
+            query: () => 'blog/categories',
+            providesTags: [{ type: 'Categories', id: 'LIST' }],
+        }),
+
+        getTags: builder.query<Tag[], void>({
+            query: () => 'blog/tags',
+            providesTags: [{ type: 'Tags', id: 'LIST' }],
+        }),
+
+        getComments: builder.query<PaginatedResult<Comment>, { postId: string; page?: number; pageSize?: number }>({
+            query: ({ postId, page = 1, pageSize = 10 }) => ({
+                url: `blog/${postId}/comments`,
+                params: { page, pageSize },
+            }),
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.items.map(({ id }) => ({ type: 'Comments' as const, id })),
+                        { type: 'Comments', id: 'LIST' },
+                    ]
+                    : [{ type: 'Comments', id: 'LIST' }],
+        }),
+
+        createComment: builder.mutation<Comment, { postId: string; comment: CommentRequest }>({
+            query: ({ postId, comment }) => ({
+                url: `blog/${postId}/comments`,
+                method: 'POST',
+                body: comment,
+            }),
+            invalidatesTags: [{ type: 'Comments', id: 'LIST' }],
+        }),
+
+        updateComment: builder.mutation<boolean, { commentId: string; content: string }>({
+            query: ({ commentId, content }) => ({
+                url: `blog/comments/${commentId}`,
+                method: 'PUT',
+                body: { newContent: content },
+            }),
+            invalidatesTags: (result, error, { commentId }) => [{ type: 'Comments', id: commentId }],
+        }),
+
+        deleteComment: builder.mutation<boolean, string>({
+            query: (commentId) => ({
+                url: `blog/comments/${commentId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'Comments', id: 'LIST' }],
+        }),
+
+        toggleCommentLike: builder.mutation<boolean, string>({
+            query: (commentId) => ({
+                url: `blog/comments/${commentId}/toggle-like`,
+                method: 'POST',
+            }),
+            invalidatesTags: (result, error, commentId) => [{ type: 'Comments', id: commentId }],
+        }),
     }),
-    createBlogPost: builder.mutation<BlogPost, BlogPostRequest>({
-      query: (blogPost) => ({
-        url: 'blog',
-        method: 'POST',
-        body: blogPost,
-      }),
-      invalidatesTags: [{ type: 'Blog', id: 'LIST' }],
-    }),
-    updateBlogPost: builder.mutation<BlogPost, { id: string; blogPost: BlogPostRequest }>({
-      query: ({ id, blogPost }) => ({
-        url: `blog/${id}`,
-        method: 'PUT',
-        body: blogPost,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Blog', id },
-        { type: 'Blog', id: 'LIST' },
-      ],
-    }),
-    deleteBlogPost: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `blog/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Blog', id },
-        { type: 'Blog', id: 'LIST' },
-      ],
-    }),
-    likeBlogPost: builder.mutation<void, { id: string; like: boolean }>({
-      query: ({ id, like }) => ({
-        url: `blog/${id}/like`,
-        method: 'POST',
-        body: { like },
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Blog', id }],
-    }),
-    searchBlogPosts: builder.query<PaginatedResult<BlogPost>, { searchTerm: string; page?: number; pageSize?: number }>({
-      query: ({ searchTerm, page = 1, pageSize = 10 }) => ({
-        url: 'blog/search',
-        params: { searchTerm, page, pageSize },
-      }),
-      providesTags: (result) => 
-        result
-          ? [
-              ...result.items.map(({ id }) => ({ type: 'Blog' as const, id })),
-              { type: 'Blog', id: 'SEARCH' },
-            ]
-          : [{ type: 'Blog', id: 'SEARCH' }],
-    }),
-    getFavoriteBlogPosts: builder.query<PaginatedResult<BlogPost>, { page?: number; pageSize?: number }>({
-      query: ({ page = 1, pageSize = 10 }) => ({
-        url: 'blog/favorites',
-        params: { page, pageSize },
-      }),
-      providesTags: (result) => 
-        result
-          ? [
-              ...result.items.map(({ id }) => ({ type: 'Blog' as const, id })),
-              { type: 'Blog', id: 'FAVORITES' },
-            ]
-          : [{ type: 'Blog', id: 'FAVORITES' }],
-    }),
-    getCategories: builder.query<Category[], void>({
-      query: () => 'categories',
-      providesTags: [{ type: 'Category', id: 'LIST' }],
-    }),
-    getTags: builder.query<Tag[], void>({
-      query: () => 'tags',
-      providesTags: [{ type: 'Tag', id: 'LIST' }],
-    }),
-    getComments: builder.query<Comment[], string>({
-      query: (blogId) => `blog/${blogId}/comments`,
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: 'Comment' as const, id })),
-              { type: 'Comment', id: 'LIST' },
-            ]
-          : [{ type: 'Comment', id: 'LIST' }],
-    }),
-    addComment: builder.mutation<Comment, { blogId: string; comment: CommentRequest }>({
-      query: ({ blogId, comment }) => ({
-        url: `blog/${blogId}/comments`,
-        method: 'POST',
-        body: comment,
-      }),
-      invalidatesTags: (result, error, { blogId }) => [
-        { type: 'Blog', id: blogId },
-        { type: 'Comment', id: 'LIST' },
-      ],
-    }),
-    deleteComment: builder.mutation<void, { blogId: string; commentId: string }>({
-      query: ({ blogId, commentId }) => ({
-        url: `blog/${blogId}/comments/${commentId}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, { blogId, commentId }) => [
-        { type: 'Blog', id: blogId },
-        { type: 'Comment', id: commentId },
-        { type: 'Comment', id: 'LIST' },
-      ],
-    }),
-  }),
 });
 
-export const { 
-  useGetBlogPostsQuery,
-  useGetBlogPostByIdQuery,
-  useCreateBlogPostMutation,
-  useDeleteBlogPostMutation,
-  useLikeBlogPostMutation,
-  useUpdateBlogPostMutation,
-  useGetCategoriesQuery,
-  useGetTagsQuery,
-  useGetCommentsQuery,
-  useAddCommentMutation,
-  useDeleteCommentMutation,
-  useSearchBlogPostsQuery,
-  useGetFavoriteBlogPostsQuery
+export const {
+    useGetBlogPostsQuery,
+    useGetBlogPostByIdQuery,
+    useCreateBlogPostMutation,
+    useUpdateBlogPostMutation,
+    useDeleteBlogPostMutation,
+    useToggleLikeBlogPostMutation,
+    useGetCategoriesQuery,
+    useGetTagsQuery,
+    useGetCommentsQuery,
+    useCreateCommentMutation,
+    useUpdateCommentMutation,
+    useDeleteCommentMutation,
+    useToggleCommentLikeMutation,
 } = blogApi;
