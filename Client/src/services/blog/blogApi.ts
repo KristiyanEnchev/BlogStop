@@ -32,7 +32,7 @@ export const blogApi = createApi({
 
     getBlogPostById: builder.query<BlogPost, string>({
       query: (id) => `blog/${id}`,
-      providesTags: (result, error, id) => [{ type: 'BlogPosts', id }],
+      providesTags: (_result, _error, id) => [{ type: 'BlogPosts', id }],
     }),
 
     createBlogPost: builder.mutation<BlogPost, BlogPostRequest>({
@@ -50,7 +50,7 @@ export const blogApi = createApi({
         method: 'PUT',
         body: blogPost,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: (_result, _error, { id }) => [
         { type: 'BlogPosts', id },
         { type: 'BlogPosts', id: 'LIST' },
       ],
@@ -69,7 +69,7 @@ export const blogApi = createApi({
         url: `blog/${id}/toggle-like`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'BlogPosts', id }],
+      invalidatesTags: (_result, _error, id) => [{ type: 'BlogPosts', id }],
     }),
 
     getCategories: builder.query<Category[], void>({
@@ -111,7 +111,7 @@ export const blogApi = createApi({
         method: 'PUT',
         body: { newContent: content },
       }),
-      invalidatesTags: (result, error, { commentId }) => [{ type: 'Comments', id: commentId }],
+      invalidatesTags: (_result, _error, { commentId }) => [{ type: 'Comments', id: commentId }],
     }),
 
     deleteComment: builder.mutation<boolean, string>({
@@ -127,7 +127,7 @@ export const blogApi = createApi({
         url: `blog/comments/${commentId}/toggle-like`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, commentId) => [{ type: 'Comments', id: commentId }],
+      invalidatesTags: (_result, _error, commentId) => [{ type: 'Comments', id: commentId }],
     }),
   }),
 });
