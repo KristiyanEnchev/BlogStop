@@ -1,4 +1,3 @@
-// src/services/blog/blogSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BlogPost, Category, Tag } from '@/types/blog';
 
@@ -37,7 +36,24 @@ const blogSlice = createSlice({
         setRecentPosts: (state, action: PayloadAction<BlogPost[]>) => {
             state.recentPosts = action.payload;
         },
-
+        setPopularCategories: (state, action: PayloadAction<Category[]>) => {
+            state.popularCategories = action.payload;
+        },
+        setPopularTags: (state, action: PayloadAction<Tag[]>) => {
+            state.popularTags = action.payload;
+        },
+        setSearchTerm: (state, action: PayloadAction<string>) => {
+            state.searchTerm = action.payload;
+        },
+        setCurrentCategory: (state, action: PayloadAction<string | null>) => {
+            state.currentCategory = action.payload;
+        },
+        setCurrentTag: (state, action: PayloadAction<string | null>) => {
+            state.currentTag = action.payload;
+        },
+        resetBlogState: (state) => {
+            return initialState;
+        },
     },
 });
 
@@ -45,7 +61,12 @@ export const {
     setCurrentPost,
     setFeaturedPosts,
     setRecentPosts,
-
+    setPopularCategories,
+    setPopularTags,
+    setSearchTerm,
+    setCurrentCategory,
+    setCurrentTag,
+    resetBlogState,
 } = blogSlice.actions;
 
 export default blogSlice.reducer;
