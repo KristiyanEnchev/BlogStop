@@ -6,8 +6,10 @@ import persistReducer from 'redux-persist/es/persistReducer';
 
 import themeReducer from '@/services/theme/themeSlice';
 import authReducer from '@/services/auth/authSlice';
+import blogReducer from '@/services/blog/blogSlice';
 
 import { authApi } from '@/services/auth/authApi';
+import { blogApi } from '@/services/blog/blogApi';
 
 const themePersistConfig = {
     key: 'theme',
@@ -19,6 +21,12 @@ const authPersistConfig = {
     key: 'auth',
     storage,
     whitelist: ['user', 'token', 'refreshToken', 'refreshTokenExpiryTime']
+};
+
+const blogPersistConfig = {
+    key: 'blog',
+    storage,
+    whitelist: ['currentCategory', 'currentTag', 'searchTerm']
 };
 
 const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
@@ -35,7 +43,9 @@ const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 const rootReducer = combineReducers({
     auth: persistReducer(authPersistConfig, authReducer),
     theme: persistReducer(themePersistConfig, themeReducer),
+    blog: persistReducer(blogPersistConfig, blogReducer),
     [authApi.reducerPath]: authApi.reducer,
+    [blogApi.reducerPath]: blogApi.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -49,6 +59,7 @@ export const store = configureStore({
             },
         }).concat(
             authApi.middleware,
+            blogApi.middleware,
             rtkQueryErrorLogger
         ),
     devTools: process.env.NODE_ENV !== 'production',

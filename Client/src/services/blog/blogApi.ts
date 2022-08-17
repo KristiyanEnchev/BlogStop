@@ -9,7 +9,7 @@ import {
   CommentRequest,
   PaginatedResult,
   BlogQueryParams
-} from '@/types/blog';
+} from '@/types/blogTypes';
 
 export const blogApi = createApi({
   reducerPath: 'blogApi',

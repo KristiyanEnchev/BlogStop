@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BlogPost, Category, Tag } from '@/types/blog';
+import { BlogPost, Category, Tag } from '@/types/blogTypes';
 
 interface BlogState {
     currentPost: BlogPost | null;
@@ -51,7 +51,7 @@ const blogSlice = createSlice({
         setCurrentTag: (state, action: PayloadAction<string | null>) => {
             state.currentTag = action.payload;
         },
-        resetBlogState: (state) => {
+        resetBlogState: (_state) => {
             return initialState;
         },
     },
