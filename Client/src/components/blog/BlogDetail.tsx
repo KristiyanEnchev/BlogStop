@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'react-hot-toast';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 export function BlogDetail() {
     const { slug } = useParams<{ slug: string }>();
@@ -150,6 +151,17 @@ export function BlogDetail() {
                     </div>
                 )}
             </div>
+
+            <ConfirmDialog
+                open={showDeleteConfirm}
+                onOpenChange={setShowDeleteConfirm}
+                title="Delete Post"
+                description="Are you sure you want to delete this post? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDelete}
+                isLoading={isDeleting}
+            />
 
         </article>
     );
