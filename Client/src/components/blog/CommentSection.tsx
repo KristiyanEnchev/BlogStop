@@ -45,7 +45,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                 postId,
                 comment: {
                     content: comment,
-                    parentCommentId: replyTo,
+                    // parentCommentId: replyTo,
                 },
             }).unwrap();
 
