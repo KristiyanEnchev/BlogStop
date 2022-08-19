@@ -47,7 +47,7 @@ export interface BlogPostRequest {
   title: string;
   excerpt: string;
   content: string;
-  featuredImage: string;
+  featuredImage?: string | undefined;
   isFeatured: boolean;
   isPublished: boolean;
   categories: string[];
