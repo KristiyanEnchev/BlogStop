@@ -40,9 +40,9 @@ export default function BlogHomePage() {
     };
 
     return (
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 text-light-text dark:text-dark-text">
             <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <h1 className="text-3xl font-bold">Blog</h1>
+                <h1 className="text-3xl font-bold text-light-text-secondary dark:text-dark-text-secondary">Blog</h1>
                 {user && (
                     <Button asChild>
                         <Link to="/create">
@@ -69,7 +69,7 @@ export default function BlogHomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <h3 className="font-semibold">Categories</h3>
+                            <h3 className="font-semibold text-light-text-secondary dark:text-dark-text-secondary">Categories</h3>
                             {categoriesLoading ? (
                                 <div className="space-y-2">
                                     {[...Array(5)].map((_, i) => (
@@ -100,7 +100,7 @@ export default function BlogHomePage() {
                         </div>
 
                         <div className="space-y-2">
-                            <h3 className="font-semibold">Popular Tags</h3>
+                            <h3 className="font-semibold text-light-text-secondary dark:text-dark-text-secondary">Popular Tags</h3>
                             {tagsLoading ? (
                                 <div className="space-y-2">
                                     {[...Array(8)].map((_, i) => (
@@ -143,7 +143,7 @@ export default function BlogHomePage() {
                 <div className="md:col-span-3">
                     {searchTerm && (
                         <div className="mb-4">
-                            <h2 className="text-xl font-semibold">
+                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
                                 Search results for: <span className="italic">"{searchTerm}"</span>
                             </h2>
                         </div>
@@ -151,16 +151,16 @@ export default function BlogHomePage() {
 
                     {currentCategory && (
                         <div className="mb-4">
-                            <h2 className="text-xl font-semibold">
-                                Category: <span className="text-primary">{currentCategory}</span>
+                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
+                                Category: <span className="text-primary-600 dark:text-primary-400">{currentCategory}</span>
                             </h2>
                         </div>
                     )}
 
                     {currentTag && (
                         <div className="mb-4">
-                            <h2 className="text-xl font-semibold">
-                                Tag: <span className="text-primary">#{currentTag}</span>
+                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
+                                Tag: <span className="text-primary-600 dark:text-primary-400">#{currentTag}</span>
                             </h2>
                         </div>
                     )}

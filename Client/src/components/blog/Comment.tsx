@@ -76,14 +76,14 @@ export function Comment({ comment, onReply }: CommentProps) {
     };
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2 text-light-text dark:text-dark-text">
             <div className="flex items-center gap-2">
                 <Avatar>
                     <AvatarFallback>{getInitials(comment.authorName)}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <div className="font-medium">{comment.authorName}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="font-medium text-light-text-secondary dark:text-dark-text-secondary">{comment.authorName}</div>
+                    <div className="text-xs text-light-text-muted dark:text-dark-text-muted">
                         {formatDate(comment.createdDate)}
                         {comment.createdDate !== comment.lastModifiedDate && ' (edited)'}
                     </div>
@@ -117,7 +117,7 @@ export function Comment({ comment, onReply }: CommentProps) {
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        <div className="rounded-md bg-muted/40 p-3">{comment.content}</div>
+                        <div className="rounded-md bg-light-bg-tertiary/40 dark:bg-dark-bg-tertiary/40 p-3">{comment.content}</div>
 
                         <div className="flex flex-wrap gap-2 text-sm">
                             <Button
@@ -155,7 +155,7 @@ export function Comment({ comment, onReply }: CommentProps) {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-auto px-2 py-1 text-destructive"
+                                        className="h-auto px-2 py-1 text-error-600 dark:text-error-400"
                                         onClick={() => setShowDeleteConfirm(true)}
                                     >
                                         <i className="ri-delete-bin-line mr-1"></i> Delete

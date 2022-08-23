@@ -23,20 +23,19 @@ export const LogoutButton: React.FC<LogoutButtonProps> = ({
             await dispatch(logoutUser());
             toast.success("Successfully logged out!", {
                 style: {
-                    background: '#4a90e2',
+                    background: 'var(--success-600)',
                     color: '#ffffff',
                 },
                 iconTheme: {
                     primary: '#ffffff',
-                    secondary: '#4a90e2',
+                    secondary: 'var(--success-600)',
                 },
             });
             navigate("/login");
         } catch (error) {
-            console.error("Logout failed:", error);
-            toast.error(`Logout failed: ${error}`, {
+            toast.error("Logout failed", {
                 style: {
-                    background: '#ff4d4f',
+                    background: 'var(--error-600)',
                     color: '#ffffff',
                 },
             });

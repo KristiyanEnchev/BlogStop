@@ -59,6 +59,17 @@ namespace Infrastructure.Services.Blog
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
+            if (blogPostDto != null)
+            {
+                var post = await _blogRepository.AsTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                if (post != null)
+                {
+                    post.ViewCount++;
+                    await _blogRepository.SaveChangesAsync(cancellationToken);
+                    blogPostDto.ViewCount = post.ViewCount;
+                }
+            }
+
             return blogPostDto;
         }
 

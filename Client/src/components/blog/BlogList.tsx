@@ -20,7 +20,7 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
     };
 
     const { data, isLoading, isFetching } = useGetBlogPostsQuery(finalQueryParams);
-    console.log(data)
+    
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -48,8 +48,8 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
     if (!data?.data?.length) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-                <h3 className="text-xl font-semibold">No posts found</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">No posts found</h3>
+                <p className="text-light-text-muted dark:text-dark-text-muted">
                     Try changing your search criteria or check back later.
                 </p>
             </div>

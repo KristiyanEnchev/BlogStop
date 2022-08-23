@@ -21,24 +21,24 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
                             className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                         />
                         {post.isFeatured && (
-                            <Badge className="absolute right-2 top-2 bg-primary text-primary-foreground">
+                            <Badge className="absolute right-2 top-2 bg-primary-600 dark:bg-primary-500 text-white">
                                 Featured
                             </Badge>
                         )}
                     </div>
                 )}
                 <CardHeader className="p-4 pb-0">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-light-text-muted dark:text-dark-text-muted">
                         <span>{formatDate(post.createdDate)}</span>
                         <span>•</span>
                         <span>{post.authorName}</span>
                     </div>
-                    <h3 className="mt-2 line-clamp-2 text-xl font-semibold tracking-tight">
+                    <h3 className="mt-2 line-clamp-2 text-xl font-semibold tracking-tight text-light-text-secondary dark:text-dark-text-secondary">
                         {post.title}
                     </h3>
                 </CardHeader>
                 <CardContent className="p-4 pt-2">
-                    <p className="line-clamp-3 text-muted-foreground">
+                    <p className="line-clamp-3 text-light-text-muted dark:text-dark-text-muted">
                         {post.excerpt}
                     </p>
                 </CardContent>
@@ -48,7 +48,7 @@ export function BlogCard({ post, compact = false }: BlogCardProps) {
                             {category}
                         </Badge>
                     ))}
-                    <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="ml-auto flex items-center gap-2 text-sm text-light-text-muted dark:text-dark-text-muted">
                         <span className="flex items-center gap-1">
                             <i className="ri-eye-line"></i> {post.viewCount}
                         </span>

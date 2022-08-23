@@ -71,8 +71,8 @@ export function CommentSection({ postId }: CommentSectionProps) {
     };
 
     return (
-        <div className="space-y-6">
-            <h3 className="text-xl font-semibold">
+        <div className="space-y-6 text-light-text dark:text-dark-text">
+            <h3 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
                 Comments {data?.totalCount ? `(${data.totalCount})` : ''}
             </h3>
 
@@ -81,7 +81,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             {replyTo && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-2 text-sm text-light-text-muted dark:text-dark-text-muted">
                                     <span>Replying to comment</span>
                                     <Button
                                         type="button"
@@ -109,8 +109,8 @@ export function CommentSection({ postId }: CommentSectionProps) {
                         </div>
                     </form>
                 ) : (
-                    <div className="rounded-md border p-4 text-center">
-                        <p className="text-muted-foreground">
+                    <div className="rounded-md border border-light-bg-tertiary dark:border-dark-bg-tertiary p-4 text-center">
+                        <p className="text-light-text-muted dark:text-dark-text-muted">
                             You need to be logged in to comment.
                         </p>
                         <Button asChild className="mt-2" variant="outline">
@@ -134,7 +134,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                         ))}
                     </div>
                 ) : data?.data.length === 0 ? (
-                    <p className="text-center text-muted-foreground">No comments yet. Be the first to comment!</p>
+                    <p className="text-center text-light-text-muted dark:text-dark-text-muted">No comments yet. Be the first to comment!</p>
                 ) : (
                     <>
                         {data?.data.map((comment: CommentType) => (

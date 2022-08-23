@@ -4,11 +4,16 @@ import { initializeTheme } from "@/lib/theme";
 
 interface ThemeState {
     isDark: boolean;
+    theme: 'dark' | 'light';
 }
 
-const getInitialState = (): ThemeState => ({
-    isDark: typeof window === "undefined" ? true : Boolean(initializeTheme()),
-});
+const getInitialState = (): ThemeState => {
+    const isDark = typeof window === "undefined" ? true : Boolean(initializeTheme());
+    return {
+        isDark,
+        theme: isDark ? 'dark' : 'light'
+    };
+};
 
 const themeSlice = createSlice({
     name: "theme",
@@ -16,6 +21,7 @@ const themeSlice = createSlice({
     reducers: {
         setTheme: (state, action: PayloadAction<boolean>) => {
             state.isDark = action.payload;
+            state.theme = action.payload ? 'dark' : 'light';
             if (typeof window !== "undefined") {
                 localStorage.setItem("theme", action.payload ? "dark" : "light");
                 document.documentElement.classList.toggle("dark", action.payload);
@@ -29,4 +35,5 @@ const themeSlice = createSlice({
 
 export const { setTheme, toggleTheme } = themeSlice.actions;
 export const selectIsDark = (state: RootState) => state.theme.isDark;
+export const selectTheme = (state: RootState) => state.theme.theme;
 export default themeSlice.reducer;

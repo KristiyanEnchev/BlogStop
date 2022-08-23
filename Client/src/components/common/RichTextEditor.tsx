@@ -18,7 +18,7 @@ export function RichTextEditor({
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="min-h-[200px] bg-white dark:bg-gray-800"
+            className="min-h-[200px] bg-light-bg dark:bg-dark-bg-secondary"
         />
     );
 }

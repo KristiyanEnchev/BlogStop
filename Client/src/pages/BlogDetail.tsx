@@ -14,7 +14,7 @@ export default function BlogDetail() {
     const navigate = useNavigate();
     const { user } = useAppSelector((state) => state.auth);
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-    console.log(id)
+    
     const { data: post, isLoading, refetch } = useGetBlogPostByIdQuery(id || '');
     const [toggleLike] = useToggleLikeBlogPostMutation();
     const [deletePost, { isLoading: isDeleting }] = useDeleteBlogPostMutation();
@@ -63,9 +63,9 @@ export default function BlogDetail() {
 
     if (!post) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-                <h2 className="text-2xl font-bold">Post not found</h2>
-                <p className="text-muted-foreground">
+            <div className="flex flex-col items-center justify-center py-12 text-center text-light-text dark:text-dark-text">
+                <h2 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary">Post not found</h2>
+                <p className="text-light-text-muted dark:text-dark-text-muted">
                     The post you're looking for doesn't exist or has been removed.
                 </p>
                 <Button asChild className="mt-4">
@@ -78,11 +78,11 @@ export default function BlogDetail() {
     const isAuthor = user?.id === post.authorId;
 
     return (
-        <article className="mx-auto max-w-4xl space-y-8">
+        <article className="mx-auto max-w-4xl space-y-8 text-light-text dark:text-dark-text">
             <header className="space-y-4">
-                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-light-text-secondary dark:text-dark-text-secondary">{post.title}</h1>
 
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-light-text-muted dark:text-dark-text-muted">
                     <span>{formatDate(post.createdDate)}</span>
                     <span>•</span>
                     <span>{post.authorName}</span>
@@ -114,7 +114,7 @@ export default function BlogDetail() {
             <div className="prose prose-lg max-w-none dark:prose-invert"
                 dangerouslySetInnerHTML={{ __html: post.content }} />
 
-            <div className="flex flex-wrap items-center gap-4 border-t border-b py-4">
+            <div className="flex flex-wrap items-center gap-4 border-t border-b border-light-bg-tertiary dark:border-dark-bg-tertiary py-4">
                 <div className="flex items-center gap-2">
                     <Button
                         variant={post.isLikedByUser ? "default" : "outline"}
