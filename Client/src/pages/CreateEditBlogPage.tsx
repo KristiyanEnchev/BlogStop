@@ -35,7 +35,7 @@ const blogPostSchema = z.object({
 
 type FormValues = z.infer<typeof blogPostSchema>;
 
-export function CreateEditBlogPage() {
+export default function CreateEditBlogPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const isEditMode = Boolean(slug);
@@ -88,7 +88,7 @@ export function CreateEditBlogPage() {
             } else {
                 const newPost = await createPost(data).unwrap();
                 toast.success('Post created successfully');
-                navigate(`/blog/${newPost.slug}`);
+                navigate(`/${newPost.id}`);
             }
         } catch (error) {
             toast.error('Failed to save post');

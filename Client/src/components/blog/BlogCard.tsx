@@ -12,7 +12,7 @@ interface BlogCardProps {
 export function BlogCard({ post, compact = false }: BlogCardProps) {
     return (
         <Card className="h-full overflow-hidden transition-all hover:shadow-md">
-            <Link to={`/blog/${post.slug}`}>
+            <Link to={`/${post.id}`}>
                 {!compact && post.featuredImage && (
                     <div className="relative h-48 w-full overflow-hidden">
                         <img

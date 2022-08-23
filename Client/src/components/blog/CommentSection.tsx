@@ -133,11 +133,11 @@ export function CommentSection({ postId }: CommentSectionProps) {
                             </div>
                         ))}
                     </div>
-                ) : data?.items.length === 0 ? (
+                ) : data?.data.length === 0 ? (
                     <p className="text-center text-muted-foreground">No comments yet. Be the first to comment!</p>
                 ) : (
                     <>
-                        {data?.items.map((comment: CommentType) => (
+                        {data?.data.map((comment: CommentType) => (
                             <Comment
                                 key={comment.id}
                                 comment={comment}

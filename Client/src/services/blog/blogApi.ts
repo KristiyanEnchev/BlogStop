@@ -24,7 +24,7 @@ export const blogApi = createApi({
       providesTags: (result) =>
         result
           ? [
-            ...result.items.map(({ id }) => ({ type: 'BlogPosts' as const, id })),
+            ...result.data.map(({ id }) => ({ type: 'BlogPosts' as const, id })),
             { type: 'BlogPosts', id: 'LIST' },
           ]
           : [{ type: 'BlogPosts', id: 'LIST' }],
@@ -90,7 +90,7 @@ export const blogApi = createApi({
       providesTags: (result) =>
         result
           ? [
-            ...result.items.map(({ id }) => ({ type: 'Comments' as const, id })),
+            ...result.data.map(({ id }) => ({ type: 'Comments' as const, id })),
             { type: 'Comments', id: 'LIST' },
           ]
           : [{ type: 'Comments', id: 'LIST' }],

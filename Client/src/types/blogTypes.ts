@@ -60,7 +60,7 @@ export interface CommentRequest {
 }
 
 export interface PaginatedResult<T> {
-  items: T[];
+  data: T[];
   pageNumber: number;
   totalPages: number;
   totalCount: number;

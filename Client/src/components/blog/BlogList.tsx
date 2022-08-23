@@ -12,10 +12,15 @@ interface BlogListProps {
 
 export function BlogList({ queryParams = {}, showPagination = true }: BlogListProps) {
     const [page, setPage] = React.useState(queryParams.page || 1);
-    const finalQueryParams = { ...queryParams, page };
+    const finalQueryParams: BlogQueryParams = {
+        ...queryParams,
+        page,
+        sortBy: queryParams.sortBy || "CreatedDate",
+        order: queryParams.order || "desc",
+    };
 
     const { data, isLoading, isFetching } = useGetBlogPostsQuery(finalQueryParams);
-
+    console.log(data)
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -40,7 +45,7 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
         );
     }
 
-    if (!data?.items?.length) {
+    if (!data?.data?.length) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
                 <h3 className="text-xl font-semibold">No posts found</h3>
@@ -54,7 +59,7 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
     return (
         <div className="space-y-8">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {data.items.map((post) => (
+                {data.data.map((post) => (
                     <BlogCard key={post.id} post={post} />
                 ))}
             </div>

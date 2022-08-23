@@ -7,15 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'react-hot-toast';
-import { ConfirmDialog } from '../common/ConfirmDialog';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
-export function BlogDetail() {
-    const { slug } = useParams<{ slug: string }>();
+export default function BlogDetail() {
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { user } = useAppSelector((state) => state.auth);
     const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
-
-    const { data: post, isLoading, refetch } = useGetBlogPostByIdQuery(slug || '');
+    console.log(id)
+    const { data: post, isLoading, refetch } = useGetBlogPostByIdQuery(id || '');
     const [toggleLike] = useToggleLikeBlogPostMutation();
     const [deletePost, { isLoading: isDeleting }] = useDeleteBlogPostMutation();
 
@@ -36,7 +36,7 @@ export function BlogDetail() {
             try {
                 await deletePost(post.id).unwrap();
                 toast.success('Post deleted successfully');
-                navigate('/blog');
+                navigate('/');
             } catch (error) {
                 toast.error('Failed to delete post');
             }
@@ -69,7 +69,7 @@ export function BlogDetail() {
                     The post you're looking for doesn't exist or has been removed.
                 </p>
                 <Button asChild className="mt-4">
-                    <Link to="/blog">Back to Blog</Link>
+                    <Link to="/">Back to Blog</Link>
                 </Button>
             </div>
         );
@@ -137,7 +137,7 @@ export function BlogDetail() {
                 {isAuthor && (
                     <div className="ml-auto flex gap-2">
                         <Button variant="outline" size="sm" asChild>
-                            <Link to={`/blog/edit/${post.slug}`}>
+                            <Link to={`/edit/${post.id}`}>
                                 <i className="ri-edit-line mr-1"></i> Edit
                             </Link>
                         </Button>
