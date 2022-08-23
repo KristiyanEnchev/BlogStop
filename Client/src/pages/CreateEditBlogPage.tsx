@@ -18,9 +18,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { MultiSelect } from '@/components/common/MultiSelect';
+import { PenLine, Image, Tag, Bookmark, Eye, Save, ArrowLeft, Loader2, Star, Clock } from 'lucide-react';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const blogPostSchema = z.object({
     title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title must be less than 100 characters'),
@@ -66,82 +67,158 @@ export default function CreateEditBlogPage() {
             tags: [],
         },
     });
+    console.log(categories)
+    const categoryOptions = React.useMemo(() => {
+        if (!categories || categories.length === 0) return [];
+        return categories.map(c => ({ label: c.name, value: c.id }));
+    }, [categories]);
+
+    const tagOptions = React.useMemo(() => {
+        if (!tags || tags.length === 0) return [];
+        return tags.map(t => ({ label: t.name, value: t.id }));
+    }, [tags]);
+
+    const getCategoryNameById = React.useCallback((id: string) => {
+        const category = categories?.find(c => c.id === id);
+        return category?.name || id;
+    }, [categories]);
+
+    const getTagNameById = React.useCallback((id: string) => {
+        const tag = tags?.find(t => t.id === id);
+        return tag?.name || id;
+    }, [tags]);
 
     React.useEffect(() => {
-        if (post && isEditMode) {
+        if (post && isEditMode && categories && tags) {
             setValue('title', post.title);
             setValue('excerpt', post.excerpt);
             setValue('content', post.content);
             setValue('featuredImage', post.featuredImage);
             setValue('isFeatured', post.isFeatured);
             setValue('isPublished', post.isPublished);
-            setValue('categories', post.categories);
-            setValue('tags', post.tags);
+
+            const categoryIds = post.categories.map(categoryName => {
+                const category = categories.find(c => c.name === categoryName);
+                return category?.id || categoryName;
+            });
+            setValue('categories', categoryIds);
+
+            const tagIds = post.tags.map(tagName => {
+                const tag = tags.find(t => t.name === tagName);
+                return tag?.id || tagName;
+            });
+            setValue('tags', tagIds);
         }
-    }, [post, isEditMode, setValue]);
+    }, [post, isEditMode, setValue, categories, tags]);
 
     const onSubmit = async (data: FormValues) => {
         try {
+            const formattedData = {
+                ...data,
+                categories: data.categories.map(getCategoryNameById),
+                tags: data.tags.map(getTagNameById)
+            };
+
             if (isEditMode && post) {
-                await updatePost({ id: post.id, blogPost: data }).unwrap();
-                toast.success('Post updated successfully');
+                await updatePost({ id: post.id, blogPost: formattedData }).unwrap();
+                toast.success('Post updated successfully', {
+                    style: {
+                        background: 'var(--success-600)',
+                        color: '#ffffff',
+                    },
+                    iconTheme: {
+                        primary: '#ffffff',
+                        secondary: 'var(--success-600)',
+                    },
+                });
             } else {
-                const newPost = await createPost(data).unwrap();
-                toast.success('Post created successfully');
+                const newPost = await createPost(formattedData).unwrap();
+                toast.success('Post created successfully', {
+                    style: {
+                        background: 'var(--success-600)',
+                        color: '#ffffff',
+                    },
+                    iconTheme: {
+                        primary: '#ffffff',
+                        secondary: 'var(--success-600)',
+                    },
+                });
                 navigate(`/${newPost.id}`);
             }
         } catch (error) {
-            toast.error('Failed to save post');
+            toast.error('Failed to save post', {
+                style: {
+                    background: 'var(--error-600)',
+                    color: '#ffffff',
+                },
+            });
         }
     };
-
-    const categoryOptions = categories?.map(c => ({ label: c.name, value: c.name })) || [];
-    const tagOptions = tags?.map(t => ({ label: t.name, value: t.name })) || [];
 
     const content = watch('content');
     const previewContent = content || 'Nothing to preview yet...';
 
+    React.useEffect(() => {
+        if (categories) {
+            console.log('Categories data:', categories);
+            console.log('Category options:', categoryOptions);
+        }
+        if (tags) {
+            console.log('Tags data:', tags);
+            console.log('Tag options:', tagOptions);
+        }
+    }, [categories, tags, categoryOptions, tagOptions]);
+
     if (isLoading) {
         return (
-            <div className="container mx-auto py-8">
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-8 w-1/3" />
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-24 w-full" />
-                        <Skeleton className="h-64 w-full" />
-                    </CardContent>
-                </Card>
+            <div className="container mx-auto py-8 px-4 text-light-text dark:text-dark-text">
+                <div className="flex justify-center items-center min-h-[60vh]">
+                    <LoadingSpinner size="large" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto py-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>{isEditMode ? 'Edit Post' : 'Create New Post'}</CardTitle>
+        <div className="container mx-auto py-8 px-4 text-light-text dark:text-dark-text">
+            <Card className="border border-light-bg-tertiary dark:border-dark-bg-tertiary bg-light-bg dark:bg-dark-bg shadow-md">
+                <CardHeader className="border-b rounded-md border-light-bg-tertiary dark:border-dark-bg-tertiary bg-light-bg-secondary dark:bg-dark-bg-secondary">
+                    <div className="flex items-center gap-2">
+                        <PenLine className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                        <CardTitle className="text-light-text-secondary dark:text-dark-text-secondary">
+                            {isEditMode ? 'Edit Post' : 'Create New Post'}
+                        </CardTitle>
+                    </div>
                 </CardHeader>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 pt-6">
                         <div className="space-y-2">
-                            <Label htmlFor="title">Title</Label>
+                            <Label htmlFor="title" className="text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1">
+                                <span>Title</span>
+                                <span className="text-error-500">*</span>
+                            </Label>
                             <Controller
                                 name="title"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input id="title" placeholder="Post title" {...field} />
+                                    <Input
+                                        id="title"
+                                        placeholder="Post title"
+                                        className="bg-light-bg dark:bg-dark-bg-secondary border-light-bg-tertiary dark:border-dark-bg-tertiary focus:border-primary-500 dark:focus:border-primary-400"
+                                        {...field}
+                                    />
                                 )}
                             />
                             {errors.title && (
-                                <p className="text-sm text-destructive">{errors.title.message}</p>
+                                <p className="text-sm text-error-500">{errors.title.message}</p>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="excerpt">Excerpt</Label>
+                            <Label htmlFor="excerpt" className="text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1">
+                                <span>Excerpt</span>
+                                <span className="text-error-500">*</span>
+                            </Label>
                             <Controller
                                 name="excerpt"
                                 control={control}
@@ -150,17 +227,21 @@ export default function CreateEditBlogPage() {
                                         id="excerpt"
                                         placeholder="Brief summary of your post"
                                         rows={3}
+                                        className="bg-light-bg dark:bg-dark-bg-secondary border-light-bg-tertiary dark:border-dark-bg-tertiary focus:border-primary-500 dark:focus:border-primary-400"
                                         {...field}
                                     />
                                 )}
                             />
                             {errors.excerpt && (
-                                <p className="text-sm text-destructive">{errors.excerpt.message}</p>
+                                <p className="text-sm text-error-500">{errors.excerpt.message}</p>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="featuredImage">Featured Image URL</Label>
+                            <Label htmlFor="featuredImage" className="text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1">
+                                <Image className="h-4 w-4" />
+                                <span>Featured Image URL</span>
+                            </Label>
                             <Controller
                                 name="featuredImage"
                                 control={control}
@@ -168,15 +249,16 @@ export default function CreateEditBlogPage() {
                                     <Input
                                         id="featuredImage"
                                         placeholder="https://example.com/image.jpg"
+                                        className="bg-light-bg dark:bg-dark-bg-secondary border-light-bg-tertiary dark:border-dark-bg-tertiary focus:border-primary-500 dark:focus:border-primary-400"
                                         {...field}
                                     />
                                 )}
                             />
                             {errors.featuredImage && (
-                                <p className="text-sm text-destructive">{errors.featuredImage.message}</p>
+                                <p className="text-sm text-error-500">{errors.featuredImage.message}</p>
                             )}
                             {watch('featuredImage') && (
-                                <div className="mt-2 h-48 overflow-hidden rounded-md">
+                                <div className="mt-2 h-48 overflow-hidden rounded-md border border-light-bg-tertiary dark:border-dark-bg-tertiary">
                                     <img
                                         src={watch('featuredImage')}
                                         alt="Preview"
@@ -189,85 +271,117 @@ export default function CreateEditBlogPage() {
                             )}
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label>Categories</Label>
-                                <Controller
-                                    name="categories"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <MultiSelect
-                                            options={categoryOptions}
-                                            value={field.value.map(v => ({ label: v, value: v }))}
-                                            onChange={(selected) => field.onChange(selected.map(s => s.value))}
-                                            placeholder="Select categories"
-                                        />
-                                    )}
-                                />
-                                {errors.categories && (
-                                    <p className="text-sm text-destructive">{errors.categories.message}</p>
-                                )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-light-text dark:text-dark-text flex items-center">
+                                        <Bookmark className="h-4 w-4 mr-2" />
+                                        Categories
+                                    </Label>
+                                    <Controller
+                                        name="categories"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <MultiSelect
+                                                options={categoryOptions}
+                                                value={field.value.map(id => ({
+                                                    label: getCategoryNameById(id),
+                                                    value: id
+                                                }))}
+                                                onChange={selected => field.onChange(selected.map(item => item.value))}
+                                                placeholder="Select categories"
+                                                className="bg-light-bg dark:bg-dark-bg-secondary"
+                                            />
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-light-text dark:text-dark-text flex items-center">
+                                        <Tag className="h-4 w-4 mr-2" />
+                                        Tags
+                                    </Label>
+                                    <Controller
+                                        name="tags"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <MultiSelect
+                                                options={tagOptions}
+                                                value={field.value.map(id => ({
+                                                    label: getTagNameById(id),
+                                                    value: id
+                                                }))}
+                                                onChange={selected => field.onChange(selected.map(item => item.value))}
+                                                placeholder="Select tags"
+                                                className="bg-light-bg dark:bg-dark-bg-secondary"
+                                            />
+                                        )}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label>Tags</Label>
-                                <Controller
-                                    name="tags"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <MultiSelect
-                                            options={tagOptions}
-                                            value={field.value.map(v => ({ label: v, value: v }))}
-                                            onChange={(selected) => field.onChange(selected.map(s => s.value))}
-                                            placeholder="Select tags"
-                                            allowCreate
-                                        />
-                                    )}
-                                />
-                                {errors.tags && (
-                                    <p className="text-sm text-destructive">{errors.tags.message}</p>
-                                )}
-                            </div>
-                        </div>
+                            <div className="flex flex-col justify-start pt-8">
+                                <div className="flex items-center space-x-2 p-4 bg-light-bg-secondary dark:bg-dark-bg-secondary rounded-md mb-4">
+                                    <Controller
+                                        name="isFeatured"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Checkbox
+                                                id="isFeatured"
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                className="data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500"
+                                            />
+                                        )}
+                                    />
+                                    <Label
+                                        htmlFor="isFeatured"
+                                        className="text-light-text dark:text-dark-text flex items-center cursor-pointer"
+                                    >
+                                        <Star className="h-4 w-4 mr-2 text-amber-500" />
+                                        Featured Post
+                                    </Label>
+                                </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="flex items-center space-x-2">
-                                <Controller
-                                    name="isFeatured"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Checkbox
-                                            id="isFeatured"
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    )}
-                                />
-                                <Label htmlFor="isFeatured">Featured Post</Label>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <Controller
-                                    name="isPublished"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Checkbox
-                                            id="isPublished"
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    )}
-                                />
-                                <Label htmlFor="isPublished">Publish Immediately</Label>
+                                <div className="flex items-center space-x-2 p-4 bg-light-bg-secondary dark:bg-dark-bg-secondary rounded-md mb-4">
+                                    <Controller
+                                        name="isPublished"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Checkbox
+                                                id="isPublished"
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                className="data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500"
+                                            />
+                                        )}
+                                    />
+                                    <Label
+                                        htmlFor="isPublished"
+                                        className="text-light-text dark:text-dark-text flex items-center cursor-pointer"
+                                    >
+                                        <Clock className="h-4 w-4 mr-2 text-green-500" />
+                                        Publish Immediately
+                                    </Label>
+                                </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Content</Label>
-                            <Tabs defaultValue="write">
-                                <TabsList className="mb-2">
-                                    <TabsTrigger value="write">Write</TabsTrigger>
-                                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                            <Label className="text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-1">
+                                <span>Content</span>
+                                <span className="text-error-500">*</span>
+                            </Label>
+                            <Tabs defaultValue="write" className="w-full">
+                                <TabsList className="mb-2 bg-light-bg-secondary dark:bg-dark-bg-tertiary">
+                                    <TabsTrigger value="write" className="data-[state=active]:bg-primary-100 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-600 dark:data-[state=active]:text-primary-400">
+                                        <PenLine className="h-4 w-4 mr-1" />
+                                        Write
+                                    </TabsTrigger>
+                                    <TabsTrigger value="preview" className="data-[state=active]:bg-primary-100 dark:data-[state=active]:bg-primary-900/30 data-[state=active]:text-primary-600 dark:data-[state=active]:text-primary-400">
+                                        <Eye className="h-4 w-4 mr-1" />
+                                        Preview
+                                    </TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="write" className="space-y-2">
                                     <Controller
@@ -282,12 +396,12 @@ export default function CreateEditBlogPage() {
                                         )}
                                     />
                                     {errors.content && (
-                                        <p className="text-sm text-destructive">{errors.content.message}</p>
+                                        <p className="text-sm text-error-500">{errors.content.message}</p>
                                     )}
                                 </TabsContent>
                                 <TabsContent value="preview">
                                     <div
-                                        className="prose prose-lg max-w-none rounded-md border p-4 dark:prose-invert"
+                                        className="prose prose-lg max-w-none rounded-md border border-light-bg-tertiary dark:border-dark-bg-tertiary p-4 bg-light-bg dark:bg-dark-bg-secondary dark:prose-invert prose-headings:text-light-text-secondary dark:prose-headings:text-dark-text-secondary prose-a:text-primary-600 dark:prose-a:text-primary-400"
                                         dangerouslySetInnerHTML={{ __html: previewContent }}
                                     />
                                 </TabsContent>
@@ -295,17 +409,23 @@ export default function CreateEditBlogPage() {
                         </div>
                     </CardContent>
 
-                    <CardFooter className="flex justify-between">
+                    <CardFooter className="flex justify-between border-t border-light-bg-tertiary dark:border-dark-bg-tertiary py-4">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => navigate(-1)}
                             disabled={isSaving}
+                            className="border-light-bg-tertiary dark:border-dark-bg-tertiary hover:bg-light-bg-secondary dark:hover:bg-dark-bg-tertiary text-light-text dark:text-dark-text"
                         >
+                            <ArrowLeft className="h-4 w-4 mr-1" />
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isSaving}>
-                            {isSaving && <i className="ri-loader-4-line mr-2 animate-spin"></i>}
+                        <Button
+                            type="submit"
+                            disabled={isSaving}
+                            className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white"
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                             {isEditMode ? 'Update Post' : 'Create Post'}
                         </Button>
                     </CardFooter>

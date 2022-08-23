@@ -73,12 +73,12 @@ export const blogApi = createApi({
     }),
 
     getCategories: builder.query<Category[], void>({
-      query: () => 'blog/categories',
+      query: () => 'categories',
       providesTags: [{ type: 'Categories', id: 'LIST' }],
     }),
 
     getTags: builder.query<Tag[], void>({
-      query: () => 'blog/tags',
+      query: () => 'tags',
       providesTags: [{ type: 'Tags', id: 'LIST' }],
     }),
 
