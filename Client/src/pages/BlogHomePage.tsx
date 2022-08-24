@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
+import { Search, PlusCircle, Tag, Filter, X } from 'lucide-react';
 
 export default function BlogHomePage() {
     const dispatch = useAppDispatch();
@@ -40,47 +41,58 @@ export default function BlogHomePage() {
     };
 
     return (
-        <div className="container mx-auto py-8 text-light-text dark:text-dark-text">
-            <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <h1 className="text-3xl font-bold text-light-text-secondary dark:text-dark-text-secondary">Blog</h1>
-                {user && (
-                    <Button asChild>
-                        <Link to="/create">
-                            <i className="ri-add-line mr-1"></i> Create Post
-                        </Link>
-                    </Button>
-                )}
+        <div className="container mx-auto py-12 text-light-text dark:text-dark-text">
+            <div className="mb-12">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h1 className="text-4xl font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                        Blog<span className="text-primary-600 dark:text-primary-400">Corner</span>
+                    </h1>
+                    
+                    <form onSubmit={handleSearch} className="relative md:flex-1 md:max-w-md">
+                        <Input
+                            placeholder="Search articles..."
+                            value={localSearchTerm}
+                            onChange={(e) => setLocalSearchTerm(e.target.value)}
+                            className="h-10 pl-10 pr-4 rounded-full border-light-border dark:border-dark-border bg-light-bg-secondary dark:bg-dark-bg-secondary focus:ring-2 focus:ring-primary-500"
+                        />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-text-muted dark:text-dark-text-muted" />
+                        <Button 
+                            type="submit" 
+                            size="sm" 
+                            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 bg-primary-600 hover:bg-primary-700"
+                        >
+                            <Search className="h-3 w-3 text-white" />
+                        </Button>
+                    </form>
+                    
+                    {user && (
+                        <Button asChild className="bg-primary-600 hover:bg-primary-700 text-white whitespace-nowrap">
+                            <Link to="/create" className="flex items-center gap-2">
+                                <PlusCircle className="h-4 w-4" /> Create Post
+                            </Link>
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <div className="grid gap-8 md:grid-cols-4">
                 <div className="md:col-span-1">
-                    <div className="sticky top-24 space-y-6">
-                        <div>
-                            <form onSubmit={handleSearch} className="flex gap-2">
-                                <Input
-                                    placeholder="Search posts..."
-                                    value={localSearchTerm}
-                                    onChange={(e) => setLocalSearchTerm(e.target.value)}
-                                />
-                                <Button type="submit" size="sm">
-                                    <i className="ri-search-line"></i>
-                                </Button>
-                            </form>
-                        </div>
-
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-light-text-secondary dark:text-dark-text-secondary">Categories</h3>
+                    <div className="sticky top-24 space-y-8 rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm">
+                        <div className="space-y-4">
+                            <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                <Filter className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Categories
+                            </h3>
                             {categoriesLoading ? (
                                 <div className="space-y-2">
                                     {[...Array(5)].map((_, i) => (
-                                        <Skeleton key={i} className="h-6 w-full" />
+                                        <Skeleton key={i} className="h-8 w-full" />
                                     ))}
                                 </div>
                             ) : (
                                 <div className="flex flex-wrap gap-2">
                                     <Badge
                                         variant={!currentCategory ? "default" : "outline"}
-                                        className="cursor-pointer"
+                                        className="cursor-pointer px-3 py-1 text-sm"
                                         onClick={() => handleCategoryClick(null)}
                                     >
                                         All
@@ -89,7 +101,7 @@ export default function BlogHomePage() {
                                         <Badge
                                             key={category.id}
                                             variant={currentCategory === category.name ? "default" : "outline"}
-                                            className="cursor-pointer"
+                                            className="cursor-pointer px-3 py-1 text-sm"
                                             onClick={() => handleCategoryClick(category.name)}
                                         >
                                             {category.name}
@@ -99,8 +111,10 @@ export default function BlogHomePage() {
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <h3 className="font-semibold text-light-text-secondary dark:text-dark-text-secondary">Popular Tags</h3>
+                        <div className="space-y-4">
+                            <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                <Tag className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Popular Tags
+                            </h3>
                             {tagsLoading ? (
                                 <div className="space-y-2">
                                     {[...Array(8)].map((_, i) => (
@@ -112,8 +126,12 @@ export default function BlogHomePage() {
                                     {tags?.map((tag) => (
                                         <Badge
                                             key={tag.id}
-                                            variant={currentTag === tag.name ? "default" : "outline"}
-                                            className="cursor-pointer text-xs"
+                                            variant={currentTag === tag.name ? "secondary" : "outline"}
+                                            className={`cursor-pointer text-xs ${
+                                                currentTag === tag.name 
+                                                ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50' 
+                                                : ''
+                                            }`}
                                             onClick={() => handleTagClick(tag.name)}
                                         >
                                             #{tag.name}
@@ -125,8 +143,8 @@ export default function BlogHomePage() {
 
                         {(currentCategory || currentTag || searchTerm) && (
                             <Button
-                                variant="ghost"
-                                className="w-full"
+                                variant="outline"
+                                className="w-full flex items-center justify-center gap-2 border-dashed"
                                 onClick={() => {
                                     dispatch(setCurrentCategory(null));
                                     dispatch(setCurrentTag(null));
@@ -134,33 +152,31 @@ export default function BlogHomePage() {
                                     setLocalSearchTerm('');
                                 }}
                             >
-                                <i className="ri-filter-off-line mr-1"></i> Clear Filters
+                                <X className="h-4 w-4" /> Clear All Filters
                             </Button>
                         )}
                     </div>
                 </div>
 
                 <div className="md:col-span-3">
-                    {searchTerm && (
-                        <div className="mb-4">
-                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                                Search results for: <span className="italic">"{searchTerm}"</span>
-                            </h2>
-                        </div>
-                    )}
-
-                    {currentCategory && (
-                        <div className="mb-4">
-                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                                Category: <span className="text-primary-600 dark:text-primary-400">{currentCategory}</span>
-                            </h2>
-                        </div>
-                    )}
-
-                    {currentTag && (
-                        <div className="mb-4">
-                            <h2 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                                Tag: <span className="text-primary-600 dark:text-primary-400">#{currentTag}</span>
+                    {(searchTerm || currentCategory || currentTag) && (
+                        <div className="mb-6 rounded-lg bg-light-bg-secondary dark:bg-dark-bg-secondary p-4 shadow-sm">
+                            <h2 className="text-xl font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                {searchTerm && (
+                                    <span>
+                                        Search results for: <span className="text-primary-600 dark:text-primary-400">"{searchTerm}"</span>
+                                    </span>
+                                )}
+                                {currentCategory && (
+                                    <span>
+                                        Category: <span className="text-primary-600 dark:text-primary-400">{currentCategory}</span>
+                                    </span>
+                                )}
+                                {currentTag && (
+                                    <span>
+                                        Tag: <span className="text-primary-600 dark:text-primary-400">#{currentTag}</span>
+                                    </span>
+                                )}
                             </h2>
                         </div>
                     )}

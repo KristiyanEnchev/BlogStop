@@ -4,6 +4,7 @@ import { BlogQueryParams } from '@/types/blogTypes';
 import { useGetBlogPostsQuery } from '@/services/blog/blogApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PaginationWrapper } from '@/components/common/PaginationWrapper';
+import { FileQuestion } from 'lucide-react';
 
 interface BlogListProps {
     queryParams?: BlogQueryParams;
@@ -28,16 +29,24 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
 
     if (isLoading) {
         return (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
                 {[...Array(6)].map((_, i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="h-48 w-full rounded-lg" />
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-20 w-full" />
-                        <div className="flex justify-between">
-                            <Skeleton className="h-4 w-1/4" />
-                            <Skeleton className="h-4 w-1/4" />
+                    <div key={i} className="flex flex-col space-y-3 rounded-xl overflow-hidden bg-light-bg-secondary dark:bg-dark-bg-secondary p-4">
+                        <Skeleton className="h-56 w-full rounded-lg" />
+                        <div className="space-y-2 p-2">
+                            <div className="flex gap-2">
+                                <Skeleton className="h-6 w-16 rounded-full" />
+                                <Skeleton className="h-6 w-16 rounded-full" />
+                            </div>
+                            <Skeleton className="h-8 w-3/4" />
+                            <Skeleton className="h-24 w-full" />
+                            <div className="flex justify-between pt-4">
+                                <Skeleton className="h-6 w-32" />
+                                <div className="flex gap-3">
+                                    <Skeleton className="h-6 w-16" />
+                                    <Skeleton className="h-6 w-16" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -47,10 +56,11 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
 
     if (!data?.data?.length) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-                <h3 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">No posts found</h3>
-                <p className="text-light-text-muted dark:text-dark-text-muted">
-                    Try changing your search criteria or check back later.
+            <div className="flex flex-col items-center justify-center rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-12 text-center shadow-sm">
+                <FileQuestion className="h-16 w-16 text-light-text-muted dark:text-dark-text-muted mb-4" />
+                <h3 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary mb-2">No posts found</h3>
+                <p className="text-light-text-muted dark:text-dark-text-muted max-w-md">
+                    We couldn't find any blog posts matching your criteria. Try adjusting your filters or check back later for new content.
                 </p>
             </div>
         );
@@ -58,19 +68,21 @@ export function BlogList({ queryParams = {}, showPagination = true }: BlogListPr
 
     return (
         <div className="space-y-8">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
                 {data.data.map((post) => (
                     <BlogCard key={post.id} post={post} />
                 ))}
             </div>
 
             {showPagination && data.totalPages > 1 && (
-                <PaginationWrapper
-                    currentPage={page}
-                    totalPages={data.totalPages}
-                    onPageChange={handlePageChange}
-                    disabled={isFetching}
-                />
+                <div className="mt-12">
+                    <PaginationWrapper
+                        currentPage={page}
+                        totalPages={data.totalPages}
+                        onPageChange={handlePageChange}
+                        disabled={isFetching}
+                    />
+                </div>
             )}
         </div>
     );

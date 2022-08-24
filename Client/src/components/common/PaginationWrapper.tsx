@@ -7,6 +7,7 @@ import {
     PaginationNext,
     PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationWrapperProps {
     currentPage: number;
@@ -38,6 +39,10 @@ export function PaginationWrapper({
                             if (!disabled) onPageChange(page);
                         }}
                         isActive={page === currentPage}
+                        className={page === currentPage ? 
+                            "bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-800 dark:hover:bg-primary-700" : 
+                            "hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
+                        }
                     >
                         {page}
                     </PaginationLink>
@@ -49,8 +54,8 @@ export function PaginationWrapper({
     };
 
     return (
-        <Pagination>
-            <PaginationContent>
+        <Pagination className="flex justify-center">
+            <PaginationContent className="bg-light-bg-secondary dark:bg-dark-bg-secondary rounded-lg shadow-sm p-1">
                 {currentPage > 1 && (
                     <PaginationItem>
                         <PaginationPrevious
@@ -59,7 +64,12 @@ export function PaginationWrapper({
                                 e.preventDefault();
                                 if (!disabled) onPageChange(currentPage - 1);
                             }}
-                        />
+                            className="hover:bg-light-bg dark:hover:bg-dark-bg hover:text-primary-600 dark:hover:text-primary-400"
+                            aria-label="Go to previous page"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            <span className="sr-only md:not-sr-only md:ml-2">Previous</span>
+                        </PaginationPrevious>
                     </PaginationItem>
                 )}
 
@@ -72,6 +82,7 @@ export function PaginationWrapper({
                                     e.preventDefault();
                                     if (!disabled) onPageChange(1);
                                 }}
+                                className="hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
                             >
                                 1
                             </PaginationLink>
@@ -92,6 +103,7 @@ export function PaginationWrapper({
                                     e.preventDefault();
                                     if (!disabled) onPageChange(totalPages);
                                 }}
+                                className="hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
                             >
                                 {totalPages}
                             </PaginationLink>
@@ -107,7 +119,12 @@ export function PaginationWrapper({
                                 e.preventDefault();
                                 if (!disabled) onPageChange(currentPage + 1);
                             }}
-                        />
+                            className="hover:bg-light-bg dark:hover:bg-dark-bg hover:text-primary-600 dark:hover:text-primary-400"
+                            aria-label="Go to next page"
+                        >
+                            <span className="sr-only md:not-sr-only md:mr-2">Next</span>
+                            <ChevronRight className="h-4 w-4" />
+                        </PaginationNext>
                     </PaginationItem>
                 )}
             </PaginationContent>
