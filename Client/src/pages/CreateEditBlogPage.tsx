@@ -22,6 +22,8 @@ import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { MultiSelect } from '@/components/common/MultiSelect';
 import { PenLine, Image, Tag, Bookmark, Eye, Save, ArrowLeft, Loader2, Star, Clock } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { useAppSelector } from '@/store/hooks';
+import { selectCurrentUser } from '@/services/auth/authSlice';
 
 const blogPostSchema = z.object({
     title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title must be less than 100 characters'),
@@ -37,11 +39,12 @@ const blogPostSchema = z.object({
 type FormValues = z.infer<typeof blogPostSchema>;
 
 export default function CreateEditBlogPage() {
-    const { slug } = useParams<{ slug: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const isEditMode = Boolean(slug);
+    const isEditMode = Boolean(id);
+    const currentUser = useAppSelector(selectCurrentUser);
 
-    const { data: post, isLoading: postLoading } = useGetBlogPostByIdQuery(slug || '', {
+    const { data: post, isLoading: postLoading } = useGetBlogPostByIdQuery(id || '', {
         skip: !isEditMode,
     });
 
@@ -67,7 +70,7 @@ export default function CreateEditBlogPage() {
             tags: [],
         },
     });
-    console.log(categories)
+
     const categoryOptions = React.useMemo(() => {
         if (!categories || categories.length === 0) return [];
         return categories.map(c => ({ label: c.name, value: c.id }));
@@ -113,8 +116,25 @@ export default function CreateEditBlogPage() {
 
     const onSubmit = async (data: FormValues) => {
         try {
+            if (!currentUser) {
+                toast.error('You must be logged in to create or edit a blog post');
+                return;
+            }
+
+            const generateSlug = (title: string) => {
+                return title
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim();
+            };
+
             const formattedData = {
                 ...data,
+                slug: post?.slug || generateSlug(data.title),
+                authorId: currentUser.id,
+                authorName: `${currentUser.firstName} ${currentUser.lastName}`,
                 categories: data.categories.map(getCategoryNameById),
                 tags: data.tags.map(getTagNameById)
             };
@@ -131,6 +151,7 @@ export default function CreateEditBlogPage() {
                         secondary: 'var(--success-600)',
                     },
                 });
+                navigate(`/${post.id}`);
             } else {
                 const newPost = await createPost(formattedData).unwrap();
                 toast.success('Post created successfully', {

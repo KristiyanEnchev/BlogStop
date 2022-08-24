@@ -326,7 +326,6 @@ namespace Infrastructure.Services.Blog
             await _commentRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
-
         public async Task<bool> UpdateBlogPostAsync(string postId, BlogPostRequest request, CancellationToken cancellationToken = default)
         {
             var post = await _blogRepository
@@ -347,34 +346,42 @@ namespace Infrastructure.Services.Blog
 
             var newCategories = await _categoryRepository
                 .AsNoTracking()
-                .Where(c => request.CategoryIds.Contains(c.Id))
+                .Where(c => request.CategoryIds.Contains(c.Name))
                 .ToListAsync(cancellationToken);
 
             post.Categories.Clear();
-            foreach (var category in newCategories)
+
+            foreach (var categoryId in newCategories.Select(c => c.Id))
             {
-                post.Categories.Add(category);
-            }
+                var category = await _categoryRepository
+                    .AsTracking()
+                    .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
 
-            var existingTags = await _tagRepository
-                .AsNoTracking()
-                .Where(t => request.Tags.Contains(t.Name))
-                .ToListAsync(cancellationToken);
-
-            var newTags = request.Tags
-                .Where(tag => existingTags.All(et => et.Name != tag))
-                .Select(tag => new Tag { Name = tag, Slug = tag.ToLower().Replace(" ", "-") })
-                .ToList();
-
-            if (newTags.Any())
-            {
-                await _tagRepository.AddRangeAsync(newTags, cancellationToken);
-                await _tagRepository.SaveChangesAsync(cancellationToken);
+                if (category != null)
+                {
+                    post.Categories.Add(category);
+                }
             }
 
             post.Tags.Clear();
-            foreach (var tag in existingTags.Concat(newTags))
+
+            foreach (var tagName in request.Tags)
             {
+                var tag = await _tagRepository
+                    .AsTracking()
+                    .FirstOrDefaultAsync(t => t.Name == tagName, cancellationToken);
+
+                if (tag == null)
+                {
+                    tag = new Tag
+                    {
+                        Name = tagName,
+                        Slug = tagName.ToLower().Replace(" ", "-")
+                    };
+                    await _tagRepository.AddAsync(tag, cancellationToken);
+                    await _tagRepository.SaveChangesAsync(cancellationToken);
+                }
+
                 post.Tags.Add(tag);
             }
 

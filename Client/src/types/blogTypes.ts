@@ -45,11 +45,14 @@ export interface Comment {
 
 export interface BlogPostRequest {
   title: string;
+  slug: string;
   excerpt: string;
   content: string;
   featuredImage?: string | undefined;
   isFeatured: boolean;
   isPublished: boolean;
+  authorId: string;
+  authorName: string;
   categories: string[];
   tags: string[];
 }
