@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { BlogList } from '@/components/blog/BlogList';
-import { useGetCategoriesQuery, useGetTagsQuery } from '@/services/blog/blogApi';
+import { useGetCategoriesQuery, useGetTagsQuery, useGetBlogPostsQuery } from '@/services/blog/blogApi';
 import { setCurrentCategory, setCurrentTag, setSearchTerm } from '@/services/blog/blogSlice';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,15 +9,38 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Search, PlusCircle, Tag, Filter, X } from 'lucide-react';
+import { BlogPost } from '@/types/blogTypes';
+import { BlogCard } from '@/components/blog/BlogCard';
 
 export default function BlogHomePage() {
     const dispatch = useAppDispatch();
     const { currentCategory, currentTag, searchTerm } = useAppSelector((state) => state.blog);
     const { user } = useAppSelector((state) => state.auth);
     const [localSearchTerm, setLocalSearchTerm] = React.useState(searchTerm);
+    const [filteredPosts, setFilteredPosts] = React.useState<BlogPost[] | null>(null);
 
     const { data: categories, isLoading: categoriesLoading } = useGetCategoriesQuery();
     const { data: tags, isLoading: tagsLoading } = useGetTagsQuery();
+    
+    const queryParams = {
+        category: currentCategory || undefined,
+        tag: currentTag || undefined,
+        sortBy: "CreatedDate" as const,
+        order: "desc" as const,
+    };
+    
+    const { data: blogPostsData, isLoading: blogPostsLoading } = useGetBlogPostsQuery(queryParams);
+
+    React.useEffect(() => {
+        if (blogPostsData?.data && searchTerm) {
+            const filtered = blogPostsData.data.filter(post => 
+                post.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredPosts(filtered);
+        } else {
+            setFilteredPosts(null);
+        }
+    }, [blogPostsData, searchTerm]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,12 +55,6 @@ export default function BlogHomePage() {
     const handleTagClick = (tag: string | null) => {
         dispatch(setCurrentTag(tag));
         if (tag) dispatch(setCurrentCategory(null));
-    };
-
-    const queryParams = {
-        category: currentCategory || undefined,
-        tag: currentTag || undefined,
-        search: searchTerm || undefined,
     };
 
     return (
@@ -181,7 +198,27 @@ export default function BlogHomePage() {
                         </div>
                     )}
 
-                    <BlogList queryParams={queryParams} />
+                    {filteredPosts ? (
+                        filteredPosts.length > 0 ? (
+                            <div className="space-y-8">
+                                <div className="grid gap-8 md:grid-cols-2">
+                                    {filteredPosts.map((post) => (
+                                        <BlogCard key={post.id} post={post} />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-12 text-center shadow-sm">
+                                <Search className="h-16 w-16 text-light-text-muted dark:text-dark-text-muted mb-4" />
+                                <h3 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary mb-2">No matching posts</h3>
+                                <p className="text-light-text-muted dark:text-dark-text-muted max-w-md">
+                                    We couldn't find any blog posts with titles matching "{searchTerm}". Try a different search term.
+                                </p>
+                            </div>
+                        )
+                    ) : (
+                        <BlogList queryParams={queryParams} />
+                    )}
                 </div>
             </div>
         </div>
