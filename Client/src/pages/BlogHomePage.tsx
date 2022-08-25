@@ -8,14 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
-import { Search, PlusCircle, Tag, Filter, X } from 'lucide-react';
+import { Search, Tag, Filter, X } from 'lucide-react';
 import { BlogPost } from '@/types/blogTypes';
 import { BlogCard } from '@/components/blog/BlogCard';
 
 export default function BlogHomePage() {
     const dispatch = useAppDispatch();
     const { currentCategory, currentTag, searchTerm } = useAppSelector((state) => state.blog);
-    const { user } = useAppSelector((state) => state.auth);
     const [localSearchTerm, setLocalSearchTerm] = React.useState(searchTerm);
     const [filteredPosts, setFilteredPosts] = React.useState<BlogPost[] | null>(null);
 
@@ -60,12 +59,12 @@ export default function BlogHomePage() {
     return (
         <div className="container mx-auto py-12 text-light-text dark:text-dark-text">
             <div className="mb-12">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h1 className="text-4xl font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                <div className="flex flex-col items-center md:flex-row md:justify-between gap-4">
+                    <h1 className="text-4xl font-bold text-light-text-secondary dark:text-dark-text-secondary md:w-1/4">
                         Blog<span className="text-primary-600 dark:text-primary-400">Corner</span>
                     </h1>
                     
-                    <form onSubmit={handleSearch} className="relative md:flex-1 md:max-w-md">
+                    <form onSubmit={handleSearch} className="relative w-full md:w-1/2 max-w-md">
                         <Input
                             placeholder="Search articles..."
                             value={localSearchTerm}
@@ -82,13 +81,7 @@ export default function BlogHomePage() {
                         </Button>
                     </form>
                     
-                    {user && (
-                        <Button asChild className="bg-primary-600 hover:bg-primary-700 text-white whitespace-nowrap">
-                            <Link to="/create" className="flex items-center gap-2">
-                                <PlusCircle className="h-4 w-4" /> Create Post
-                            </Link>
-                        </Button>
-                    )}
+                    <div className="md:w-1/4"></div>
                 </div>
             </div>
 

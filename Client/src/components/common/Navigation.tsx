@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ChevronDown, Pen, User } from "lucide-react";
+import { ChevronDown, Pen, User, PlusCircle } from "lucide-react";
 import ThemeToggle from "../common/ThemeToggle";
 import { LogoutButton } from "./LogoutButton";
 import { useEffect, useRef, useState } from "react";
@@ -55,6 +55,14 @@ export function Navigation() {
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-48 rounded-md shadow-card bg-light-bg dark:bg-dark-bg border border-light-bg-tertiary dark:border-dark-bg-tertiary">
                                         <div className="py-1">
+                                            <Link
+                                                to="/create"
+                                                className="flex items-center gap-2 px-4 py-2 text-light-text-secondary dark:text-dark-text-secondary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary transition-colors duration-300"
+                                                onClick={() => setIsDropdownOpen(false)}
+                                            >
+                                                <PlusCircle className="w-4 h-4" />
+                                                <span>Create Post</span>
+                                            </Link>
                                             <Link
                                                 to="/profile"
                                                 className="flex items-center gap-2 px-4 py-2 text-light-text-secondary dark:text-dark-text-secondary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary transition-colors duration-300"
