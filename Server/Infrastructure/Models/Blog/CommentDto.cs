@@ -13,6 +13,7 @@
         public bool IsApproved { get; set; }
         public string AuthorId { get; set; }
         public string AuthorName { get; set; }
+        public string? AuthorImage { get; set; }
         public string AuthorProfilePicture { get; set; }
         public string ParentCommentId { get; set; }
         public int NumberOfLikes { get; set; }
@@ -23,6 +24,7 @@
         {
             config.NewConfig<Comment, CommentDto>()
                 .Map(dest => dest.AuthorName, src => $"{src.Author.User.FirstName} {src.Author.User.LastName}")
+                .Map(dest => dest.AuthorImage, src => src.Author.ProfileImage)
                 .PreserveReference(true);
         }
     }

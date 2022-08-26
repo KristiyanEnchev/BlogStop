@@ -9,6 +9,7 @@ export interface BlogPost {
   isPublished: boolean;
   authorId: string;
   authorName: string;
+  authorImage: string;
   viewCount: number;
   numberOfLikes: number;
   isLikedByUser: boolean;

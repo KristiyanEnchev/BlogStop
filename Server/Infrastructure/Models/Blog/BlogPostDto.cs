@@ -16,6 +16,7 @@
         public bool IsPublished { get; set; }
         public string AuthorId { get; set; }
         public string AuthorName { get; set; }
+        public string? AuthorImage { get; set; }
         public int ViewCount { get; set; }
         public int NumberOfLikes { get; set; }
         public bool IsLikedByUser { get; set; }
@@ -29,6 +30,7 @@
         {
             config.NewConfig<BlogPost, BlogPostDto>()
                 .Map(dest => dest.AuthorName, src => $"{src.Author.User.FirstName} {src.Author.User.LastName}")
+                .Map(dest => dest.AuthorImage, src => src.Author.ProfileImage)
                 .PreserveReference(true);
         }
     }

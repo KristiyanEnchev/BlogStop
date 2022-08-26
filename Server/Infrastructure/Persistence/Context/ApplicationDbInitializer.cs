@@ -185,7 +185,15 @@
                 return;
             }
 
+            var avatarUrls = new List<string>
+            {
+                "https://randomuser.me/api/portraits/men/1.jpg",
+                "https://api.dicebear.com/7.x/pixel-art/svg?seed=JohnDoe",
+            };
+
+            var random = new Random();
             var authors = new List<Author>();
+
             foreach (var user in users)
             {
                 var author = await _context.Authors.FirstOrDefaultAsync(a => a.Id == user.Id);
@@ -195,7 +203,7 @@
                     {
                         Id = user.Id,
                         Bio = $"Bio for {user.FirstName} {user.LastName}",
-                        ProfileImage = "https://example.com/default-profile.jpg"
+                        ProfileImage = avatarUrls[random.Next(avatarUrls.Count)]
                     };
                     await _context.Authors.AddAsync(author);
                 }
@@ -314,8 +322,6 @@
                 _logger.LogError("No blog posts found, skipping comment seeding.");
                 return;
             }
-
-            var random = new Random();
 
             var comments = new List<Comment>
             {
