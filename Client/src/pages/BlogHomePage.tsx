@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
 import { Search, Tag, Filter, X } from 'lucide-react';
 import { BlogPost } from '@/types/blogTypes';
 import { BlogCard } from '@/components/blog/BlogCard';
@@ -28,7 +27,7 @@ export default function BlogHomePage() {
         order: "desc" as const,
     };
     
-    const { data: blogPostsData, isLoading: blogPostsLoading } = useGetBlogPostsQuery(queryParams);
+    const { data: blogPostsData } = useGetBlogPostsQuery(queryParams);
 
     React.useEffect(() => {
         if (blogPostsData?.data && searchTerm) {
