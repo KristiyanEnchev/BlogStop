@@ -344,7 +344,8 @@ namespace Infrastructure.Services.Blog
             post.Excerpt = request.Excerpt;
             post.Content = request.Content;
             post.FeaturedImage = request.FeaturedImage;
-            post.IsPublished = true;
+            post.IsFeatured = request.IsFeatured;
+            post.IsPublished = request.IsPublished;
             post.UpdatedDate = DateTime.UtcNow;
 
             var newCategories = await _categoryRepository
