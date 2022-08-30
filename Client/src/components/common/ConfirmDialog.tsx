@@ -32,14 +32,20 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+            <AlertDialogContent className="bg-light-bg dark:bg-dark-bg border border-light-bg-tertiary dark:border-dark-bg-tertiary">
                 <AlertDialogHeader>
-                    <AlertDialogTitle>{title}</AlertDialogTitle>
-                    <AlertDialogDescription>{description}</AlertDialogDescription>
+                    <AlertDialogTitle className="text-light-text-secondary dark:text-dark-text-secondary">{title}</AlertDialogTitle>
+                    <AlertDialogDescription className="text-light-text-muted dark:text-dark-text-muted">{description}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm} disabled={isLoading}>
+                    <AlertDialogCancel className="bg-light-bg-secondary dark:bg-dark-bg-secondary text-light-text dark:text-dark-text border-light-bg-tertiary dark:border-dark-bg-tertiary hover:bg-light-bg-tertiary dark:hover:bg-dark-bg-tertiary">
+                        {cancelText}
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={onConfirm} 
+                        disabled={isLoading}
+                        className="bg-primary-600 hover:bg-primary-700 text-white"
+                    >
                         {isLoading ? "Processing..." : confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>

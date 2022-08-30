@@ -110,19 +110,22 @@ export function Comment({ comment, onReply }: CommentProps) {
                                     <Button 
                                         variant="ghost" 
                                         size="sm" 
-                                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-light-text-muted dark:text-dark-text-muted hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
                                     >
-                                        <MoreHorizontal className="h-4 w-4 text-light-text-muted dark:text-dark-text-muted" />
+                                        <MoreHorizontal className="h-4 w-4" />
                                         <span className="sr-only">More</span>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                                <DropdownMenuContent align="end" className="bg-light-bg dark:bg-dark-bg border-light-bg-tertiary dark:border-dark-bg-tertiary">
+                                    <DropdownMenuItem 
+                                        onClick={() => setIsEditing(true)}
+                                        className="text-light-text dark:text-dark-text hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 cursor-pointer"
+                                    >
                                         <Edit2 className="mr-2 h-4 w-4" />
                                         <span>Edit</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
-                                        className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                        className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300 cursor-pointer"
                                         onClick={() => setShowDeleteConfirm(true)}
                                     >
                                         <Trash className="mr-2 h-4 w-4" />
@@ -149,6 +152,7 @@ export function Comment({ comment, onReply }: CommentProps) {
                                         setIsEditing(false);
                                         setEditedContent(comment.content);
                                     }}
+                                    className="border-light-bg-tertiary dark:border-dark-bg-tertiary text-light-text-muted dark:text-dark-text-muted hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
                                 >
                                     Cancel
                                 </Button>
