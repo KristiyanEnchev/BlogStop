@@ -8,6 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Comment } from './Comment';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MessageSquare, Send } from 'lucide-react';
 
 interface CommentSectionProps {
     postId: string;
@@ -45,6 +47,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
                 postId,
                 comment: {
                     content: comment,
+                    userId: user.id,
                     // parentCommentId: replyTo,
                 },
             }).unwrap();
@@ -70,91 +73,138 @@ export function CommentSection({ postId }: CommentSectionProps) {
         }
     };
 
-    return (
-        <div className="space-y-6 text-light-text dark:text-dark-text">
-            <h3 className="text-xl font-semibold text-light-text-secondary dark:text-dark-text-secondary">
-                Comments {data?.totalCount ? `(${data.totalCount})` : ''}
-            </h3>
+    const authorInitials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '';
 
-            <div id="comment-form">
-                {user ? (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            {replyTo && (
-                                <div className="flex items-center gap-2 text-sm text-light-text-muted dark:text-dark-text-muted">
-                                    <span>Replying to comment</span>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-auto p-0 text-sm"
-                                        onClick={() => setReplyTo(null)}
+    return (
+        <div className="max-w-4xl mx-auto mt-16 text-light-text dark:text-dark-text">
+            <div className="border-t border-light-bg-tertiary dark:border-dark-bg-tertiary pt-8 pb-4">
+                <h3 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2 mb-8">
+                    <MessageSquare className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                    Comments {data?.totalCount ? `(${data.totalCount})` : ''}
+                </h3>
+
+                <div id="comment-form" className="mb-10">
+                    {user ? (
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="flex gap-3">
+                                <Avatar className="h-10 w-10 border-2 border-primary-100 dark:border-primary-900 flex-shrink-0">
+                                    {user.profileImage ? (
+                                        <AvatarImage src={user.profileImage} alt={user.name} />
+                                    ) : (
+                                        <AvatarFallback className="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                                            {authorInitials}
+                                        </AvatarFallback>
+                                    )}
+                                </Avatar>
+                                
+                                <div className="flex-1 space-y-3">
+                                    {replyTo && (
+                                        <div className="flex items-center gap-2 text-sm text-light-text-muted dark:text-dark-text-muted">
+                                            <span>Replying to comment</span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-auto p-0 text-sm hover:text-primary-600 dark:hover:text-primary-400"
+                                                onClick={() => setReplyTo(null)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="relative">
+                                        <Textarea
+                                            placeholder="Write a comment..."
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            rows={3}
+                                            className="resize-none pr-12 bg-light-bg dark:bg-dark-bg border-light-bg-tertiary dark:border-dark-bg-tertiary focus:border-primary-500 dark:focus:border-primary-400"
+                                        />
+                                        <Button 
+                                            type="submit" 
+                                            size="sm" 
+                                            className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full bg-primary-600 hover:bg-primary-700 text-white"
+                                            disabled={isSubmitting || !comment.trim()}
+                                        >
+                                            <Send className="h-4 w-4" />
+                                            <span className="sr-only">Submit</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 text-center shadow-sm">
+                            <MessageSquare className="h-10 w-10 mx-auto mb-3 text-primary-600 dark:text-primary-400 opacity-70" />
+                            <h4 className="text-lg font-medium text-light-text-secondary dark:text-dark-text-secondary mb-2">
+                                Join the conversation
+                            </h4>
+                            <p className="text-light-text-muted dark:text-dark-text-muted mb-4 max-w-md mx-auto">
+                                Sign in to share your thoughts and engage with other readers.
+                            </p>
+                            <Button asChild className="bg-primary-600 hover:bg-primary-700 text-white">
+                                <Link to="/login">Log In</Link>
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-4 shadow-sm space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <Skeleton className="h-10 w-10 rounded-full" />
+                                        <div className="space-y-1">
+                                            <Skeleton className="h-4 w-24" />
+                                            <Skeleton className="h-3 w-16" />
+                                        </div>
+                                    </div>
+                                    <Skeleton className="h-16 w-full" />
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-6 w-12 rounded-full" />
+                                        <Skeleton className="h-6 w-14 rounded-full" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : data?.data.length === 0 ? (
+                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-8 text-center shadow-sm">
+                            <MessageSquare className="h-12 w-12 mx-auto mb-3 text-light-text-muted dark:text-dark-text-muted opacity-50" />
+                            <h4 className="text-lg font-medium text-light-text-secondary dark:text-dark-text-secondary mb-2">
+                                No comments yet
+                            </h4>
+                            <p className="text-light-text-muted dark:text-dark-text-muted">
+                                Be the first to share your thoughts on this post!
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            {data?.data.map((comment: CommentType) => (
+                                <Comment
+                                    key={comment.id}
+                                    comment={comment}
+                                    onReply={handleReply}
+                                    postId={postId}
+                                />
+                            ))}
+
+                            {data?.hasNextPage && (
+                                <div className="flex justify-center pt-4">
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={handleLoadMore}
+                                        className="border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20"
                                     >
-                                        <i className="ri-close-line mr-1"></i> Cancel
+                                        Load More Comments
                                     </Button>
                                 </div>
                             )}
-                            <Textarea
-                                placeholder="Write a comment..."
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                rows={3}
-                            />
-                        </div>
-                        <div className="flex justify-end">
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting && <i className="ri-loader-4-line mr-2 animate-spin"></i>}
-                                {replyTo ? 'Reply' : 'Comment'}
-                            </Button>
-                        </div>
-                    </form>
-                ) : (
-                    <div className="rounded-md border border-light-bg-tertiary dark:border-dark-bg-tertiary p-4 text-center">
-                        <p className="text-light-text-muted dark:text-dark-text-muted">
-                            You need to be logged in to comment.
-                        </p>
-                        <Button asChild className="mt-2" variant="outline">
-                            <Link to="/login">Log In</Link>
-                        </Button>
-                    </div>
-                )}
-            </div>
-
-            <div className="space-y-6">
-                {isLoading ? (
-                    <div className="space-y-4">
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <Skeleton className="h-8 w-8 rounded-full" />
-                                    <Skeleton className="h-4 w-24" />
-                                </div>
-                                <Skeleton className="h-16 w-full" />
-                            </div>
-                        ))}
-                    </div>
-                ) : data?.data.length === 0 ? (
-                    <p className="text-center text-light-text-muted dark:text-dark-text-muted">No comments yet. Be the first to comment!</p>
-                ) : (
-                    <>
-                        {data?.data.map((comment: CommentType) => (
-                            <Comment
-                                key={comment.id}
-                                comment={comment}
-                                onReply={handleReply}
-                                postId={postId}
-                            />
-                        ))}
-
-                        {data?.hasNextPage && (
-                            <div className="flex justify-center">
-                                <Button variant="outline" onClick={handleLoadMore}>
-                                    Load More Comments
-                                </Button>
-                            </div>
-                        )}
-                    </>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

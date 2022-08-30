@@ -36,6 +36,7 @@ export interface Comment {
   content: string;
   authorId: string;
   authorName: string;
+  authorImage: string;
   postId: string;
   parentCommentId?: string;
   createdDate: string;
@@ -60,6 +61,7 @@ export interface BlogPostRequest {
 
 export interface CommentRequest {
   content: string;
+  userId: string;
   parentCommentId?: string;
 }
 

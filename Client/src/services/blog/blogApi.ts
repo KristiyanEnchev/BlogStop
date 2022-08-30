@@ -100,7 +100,7 @@ export const blogApi = createApi({
       query: ({ postId, comment }) => ({
         url: `blog/${postId}/comments`,
         method: 'POST',
-        body: comment,
+        body: { ...comment, postId },
       }),
       invalidatesTags: [{ type: 'Comments', id: 'LIST' }],
     }),
@@ -109,7 +109,7 @@ export const blogApi = createApi({
       query: ({ commentId, content }) => ({
         url: `blog/comments/${commentId}`,
         method: 'PUT',
-        body: { newContent: content },
+        body: { newContent: content, commentId },
       }),
       invalidatesTags: (_result, _error, { commentId }) => [{ type: 'Comments', id: commentId }],
     }),
@@ -118,6 +118,7 @@ export const blogApi = createApi({
       query: (commentId) => ({
         url: `blog/comments/${commentId}`,
         method: 'DELETE',
+        body: { commentId },
       }),
       invalidatesTags: [{ type: 'Comments', id: 'LIST' }],
     }),
@@ -126,6 +127,7 @@ export const blogApi = createApi({
       query: (commentId) => ({
         url: `blog/comments/${commentId}/toggle-like`,
         method: 'POST',
+        body: { commentId },
       }),
       invalidatesTags: (_result, _error, commentId) => [{ type: 'Comments', id: commentId }],
     }),
