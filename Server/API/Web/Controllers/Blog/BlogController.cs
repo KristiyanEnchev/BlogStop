@@ -77,8 +77,8 @@
             string postId,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string sortBy = "CreatedDate",
-            [FromQuery] string order = "desc")
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? order = null)
         {
             return await Mediator.Send(new GetCommentsForPostQuery(postId, page, pageSize, sortBy, order)).ToActionResult();
         }

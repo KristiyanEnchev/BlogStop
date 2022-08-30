@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Heart, Clock, Edit, Trash2, Share2, ArrowLeft, Tag as TagIcon, Bookmark, MessageSquare } from 'lucide-react';
+import { CommentSection } from '@/components/blog/CommentSection';
 
 export default function BlogDetail() {
     const { id } = useParams<{ id: string }>();
@@ -307,9 +308,9 @@ export default function BlogDetail() {
                                     Like
                                 </Button>
 
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     onClick={handleShare}
                                     className="text-light-text dark:text-dark-text"
                                 >
@@ -324,9 +325,9 @@ export default function BlogDetail() {
                                 </h3>
 
                                 {isAuthor && (
-                                    <Button 
-                                        variant="outline" 
-                                        size="sm" 
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
                                         asChild
                                         className="text-light-text dark:text-dark-text"
                                     >
@@ -351,6 +352,8 @@ export default function BlogDetail() {
                     </div>
                 </div>
             </div>
+
+            <CommentSection postId={post.id} />
 
             <ConfirmDialog
                 open={showDeleteConfirm}

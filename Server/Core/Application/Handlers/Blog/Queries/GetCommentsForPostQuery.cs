@@ -10,7 +10,7 @@
 
     using Application.Interfaces;
 
-    public record GetCommentsForPostQuery(string PostId, int Page, int PageSize, string SortBy, string Order)
+    public record GetCommentsForPostQuery(string PostId, int Page, int PageSize, string SortBy = "CreatedDate", string Order = "desc")
         : IRequest<Result<PaginatedResult<CommentDto>>>
     {
         public class Handler : IRequestHandler<GetCommentsForPostQuery, Result<PaginatedResult<CommentDto>>>
