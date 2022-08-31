@@ -96,21 +96,27 @@ export default function CreateEditBlogPage() {
             setValue('title', post.title);
             setValue('excerpt', post.excerpt);
             setValue('content', post.content);
-            setValue('featuredImage', post.featuredImage);
-            setValue('isFeatured', post.isFeatured);
-            setValue('isPublished', post.isPublished);
+            setValue('featuredImage', post.featuredImage || '');
+            setValue('isFeatured', post.isFeatured || false);
+            setValue('isPublished', post.isPublished || true);
 
-            const categoryIds = post.categories.map(categoryName => {
-                const category = categories.find(c => c.name === categoryName);
-                return category?.id || categoryName;
-            });
-            setValue('categories', categoryIds);
+            if (post.categories && post.categories.length > 0) {
+                const categoryIds = post.categories.map(categoryName => {
+                    const category = categories.find(c => c.name === categoryName);
+                    return category?.id || '';
+                }).filter(id => id !== '');
 
-            const tagIds = post.tags.map(tagName => {
-                const tag = tags.find(t => t.name === tagName);
-                return tag?.id || tagName;
-            });
-            setValue('tags', tagIds);
+                setValue('categories', categoryIds);
+            }
+
+            if (post.tags && post.tags.length > 0) {
+                const tagIds = post.tags.map(tagName => {
+                    const tag = tags.find(t => t.name === tagName);
+                    return tag?.id || '';
+                }).filter(id => id !== '');
+
+                setValue('tags', tagIds);
+            }
         }
     }, [post, isEditMode, setValue, categories, tags]);
 
@@ -135,7 +141,7 @@ export default function CreateEditBlogPage() {
                 slug: post?.slug || generateSlug(data.title),
                 authorId: currentUser.id,
                 authorName: `${currentUser.firstName} ${currentUser.lastName}`,
-                categories: data.categories.map(getCategoryNameById),
+                categoryNames: data.categories.map(getCategoryNameById),
                 tags: data.tags.map(getTagNameById)
             };
 

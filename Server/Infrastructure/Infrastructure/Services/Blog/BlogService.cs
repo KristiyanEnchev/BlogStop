@@ -228,7 +228,7 @@ namespace Infrastructure.Services.Blog
         {
             var categories = await _categoryRepository
                 .AsTracking()
-                .Where(c => request.CategoryIds.Contains(c.Id))
+                .Where(c => request.CategoryNames.Contains(c.Id))
                 .ToListAsync(cancellationToken);
 
             var tags = new List<Tag>();
@@ -348,6 +348,7 @@ namespace Infrastructure.Services.Blog
             await _commentRepository.SaveChangesAsync(cancellationToken);
             return true;
         }
+
         public async Task<bool> UpdateBlogPostAsync(string postId, BlogPostRequest request, CancellationToken cancellationToken = default)
         {
             var post = await _blogRepository
@@ -367,18 +368,13 @@ namespace Infrastructure.Services.Blog
             post.IsPublished = request.IsPublished;
             post.UpdatedDate = DateTime.UtcNow;
 
-            var newCategories = await _categoryRepository
-                .AsNoTracking()
-                .Where(c => request.CategoryIds.Contains(c.Name))
-                .ToListAsync(cancellationToken);
-
             post.Categories.Clear();
 
-            foreach (var categoryId in newCategories.Select(c => c.Id))
+            foreach (var categoryName in request.CategoryNames) 
             {
                 var category = await _categoryRepository
                     .AsTracking()
-                    .FirstOrDefaultAsync(c => c.Id == categoryId, cancellationToken);
+                    .FirstOrDefaultAsync(c => c.Name == categoryName, cancellationToken);
 
                 if (category != null)
                 {

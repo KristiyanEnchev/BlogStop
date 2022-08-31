@@ -55,7 +55,7 @@ export interface BlogPostRequest {
   isPublished: boolean;
   authorId: string;
   authorName: string;
-  categories: string[];
+  categoryNames: string[];
   tags: string[];
 }
 

@@ -11,7 +11,7 @@
         public bool IsPublished { get; set; } = true;
         public string AuthorId { get; set; }
         public string AuthorName { get; set; }
-        public List<string>? CategoryIds { get; set; }
+        public List<string>? CategoryNames { get; set; }
         public List<string>? Tags { get; set; }
     }
 }
