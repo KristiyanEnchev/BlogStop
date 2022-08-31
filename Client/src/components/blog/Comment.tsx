@@ -120,45 +120,9 @@ export function Comment({ comment, onReply, postId, replies = [], level = 0 }: C
                                     }
                                 </div>
                             </div>
-                        </div>
-
-                        {isEditing ? (
-                            <div className="space-y-2 mt-2">
-                                <Textarea
-                                    value={editedContent}
-                                    onChange={(e) => setEditedContent(e.target.value)}
-                                    rows={2}
-                                    className="resize-none text-sm"
-                                />
-                                <div className="flex gap-2 justify-end">
-                                    <Button 
-                                        size="sm" 
-                                        variant="outline"
-                                        onClick={() => {
-                                            setIsEditing(false);
-                                            setEditedContent(comment.content);
-                                        }}
-                                        className="h-7 text-xs border-light-bg-tertiary dark:border-dark-bg-tertiary text-light-text-muted dark:text-dark-text-muted hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button 
-                                        size="sm" 
-                                        onClick={handleEdit} 
-                                        disabled={isUpdating}
-                                        className="h-7 text-xs bg-primary-600 hover:bg-primary-700 text-white"
-                                    >
-                                        {isUpdating ? 'Saving...' : 'Save'}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="text-light-text dark:text-dark-text text-sm mt-1.5 mb-1.5">
-                                    {comment.content}
-                                </div>
-
-                                <div className="flex items-center gap-1 justify-between">
+                            
+                            {!isEditing && (
+                                <div className="flex items-center gap-1">
                                     <div className="flex items-center gap-1">
                                         <Button
                                             variant="ghost"
@@ -219,6 +183,44 @@ export function Comment({ comment, onReply, postId, replies = [], level = 0 }: C
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     )}
+                                </div>
+                            )}
+                        </div>
+
+                        {isEditing ? (
+                            <div className="space-y-2 mt-2">
+                                <Textarea
+                                    value={editedContent}
+                                    onChange={(e) => setEditedContent(e.target.value)}
+                                    rows={2}
+                                    className="resize-none text-sm"
+                                />
+                                <div className="flex gap-2 justify-end">
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        onClick={() => {
+                                            setIsEditing(false);
+                                            setEditedContent(comment.content);
+                                        }}
+                                        className="h-7 text-xs border-light-bg-tertiary dark:border-dark-bg-tertiary text-light-text-muted dark:text-dark-text-muted hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        size="sm" 
+                                        onClick={handleEdit} 
+                                        disabled={isUpdating}
+                                        className="h-7 text-xs bg-primary-600 hover:bg-primary-700 text-white"
+                                    >
+                                        {isUpdating ? 'Saving...' : 'Save'}
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="text-light-text dark:text-dark-text text-sm mt-1.5 mb-1.5">
+                                    {comment.content}
                                 </div>
                             </>
                         )}

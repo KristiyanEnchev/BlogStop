@@ -56,161 +56,165 @@ export default function BlogHomePage() {
     };
 
     return (
-        <div className="container mx-auto py-12 text-light-text dark:text-dark-text">
-            <div className="mb-12">
-                <div className="flex flex-col items-center md:flex-row md:justify-between gap-4">
-                    <h1 className="text-4xl font-bold text-light-text-secondary dark:text-dark-text-secondary md:w-1/4">
-                        Blog<span className="text-primary-600 dark:text-primary-400">Corner</span>
-                    </h1>
-                    
-                    <form onSubmit={handleSearch} className="relative w-full md:w-1/2 max-w-md">
-                        <Input
-                            placeholder="Search articles..."
-                            value={localSearchTerm}
-                            onChange={(e) => setLocalSearchTerm(e.target.value)}
-                            className="h-10 pl-10 pr-4 rounded-full border-light-border dark:border-dark-border bg-light-bg-secondary dark:bg-dark-bg-secondary focus:ring-2 focus:ring-primary-500"
-                        />
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-text-muted dark:text-dark-text-muted" />
-                        <Button 
-                            type="submit" 
-                            size="sm" 
-                            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 bg-primary-600 hover:bg-primary-700"
-                        >
-                            <Search className="h-3 w-3 text-white" />
-                        </Button>
-                    </form>
-                    
-                    <div className="md:w-1/4"></div>
-                </div>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-4">
-                <div className="md:col-span-1">
-                    <div className="sticky top-24 space-y-8 rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm">
-                        <div className="space-y-4">
-                            <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
-                                <Filter className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Categories
-                            </h3>
-                            {categoriesLoading ? (
-                                <div className="space-y-2">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Skeleton key={i} className="h-8 w-full" />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-wrap gap-2">
-                                    <Badge
-                                        variant={!currentCategory ? "default" : "outline"}
-                                        className="cursor-pointer px-3 py-1 text-sm"
-                                        onClick={() => handleCategoryClick(null)}
-                                    >
-                                        All
-                                    </Badge>
-                                    {categories?.map((category) => (
-                                        <Badge
-                                            key={category.id}
-                                            variant={currentCategory === category.name ? "default" : "outline"}
-                                            className="cursor-pointer px-3 py-1 text-sm"
-                                            onClick={() => handleCategoryClick(category.name)}
-                                        >
-                                            {category.name}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
+        <div className="bg-light-bg dark:bg-dark-bg min-h-screen pb-16 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto pt-8">
+                <div className="container mx-auto py-12 text-light-text dark:text-dark-text">
+                    <div className="mb-12">
+                        <div className="flex flex-col items-center md:flex-row md:justify-between gap-4">
+                            <h1 className="text-4xl font-bold text-light-text-secondary dark:text-dark-text-secondary md:w-1/4">
+                                Blog<span className="text-primary-600 dark:text-primary-400">Corner</span>
+                            </h1>
+                            
+                            <form onSubmit={handleSearch} className="relative w-full md:w-1/2 max-w-md">
+                                <Input
+                                    placeholder="Search articles..."
+                                    value={localSearchTerm}
+                                    onChange={(e) => setLocalSearchTerm(e.target.value)}
+                                    className="h-10 pl-10 pr-4 rounded-full border-light-border dark:border-dark-border bg-light-bg-secondary dark:bg-dark-bg-secondary focus:ring-2 focus:ring-primary-500"
+                                />
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-text-muted dark:text-dark-text-muted" />
+                                <Button 
+                                    type="submit" 
+                                    size="sm" 
+                                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 bg-primary-600 hover:bg-primary-700"
+                                >
+                                    <Search className="h-3 w-3 text-white" />
+                                </Button>
+                            </form>
+                            
+                            <div className="md:w-1/4"></div>
                         </div>
-
-                        <div className="space-y-4">
-                            <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
-                                <Tag className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Popular Tags
-                            </h3>
-                            {tagsLoading ? (
-                                <div className="space-y-2">
-                                    {[...Array(8)].map((_, i) => (
-                                        <Skeleton key={i} className="h-6 w-3/4" />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-wrap gap-2">
-                                    {tags?.map((tag) => (
-                                        <Badge
-                                            key={tag.id}
-                                            variant={currentTag === tag.name ? "secondary" : "outline"}
-                                            className={`cursor-pointer text-xs ${
-                                                currentTag === tag.name 
-                                                ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50' 
-                                                : ''
-                                            }`}
-                                            onClick={() => handleTagClick(tag.name)}
-                                        >
-                                            #{tag.name}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {(currentCategory || currentTag || searchTerm) && (
-                            <Button
-                                variant="outline"
-                                className="w-full flex items-center justify-center gap-2 border-dashed"
-                                onClick={() => {
-                                    dispatch(setCurrentCategory(null));
-                                    dispatch(setCurrentTag(null));
-                                    dispatch(setSearchTerm(''));
-                                    setLocalSearchTerm('');
-                                }}
-                            >
-                                <X className="h-4 w-4" /> Clear All Filters
-                            </Button>
-                        )}
                     </div>
-                </div>
 
-                <div className="md:col-span-3">
-                    {(searchTerm || currentCategory || currentTag) && (
-                        <div className="mb-6 rounded-lg bg-light-bg-secondary dark:bg-dark-bg-secondary p-4 shadow-sm">
-                            <h2 className="text-xl font-bold text-light-text-secondary dark:text-dark-text-secondary">
-                                {searchTerm && (
-                                    <span>
-                                        Search results for: <span className="text-primary-600 dark:text-primary-400">"{searchTerm}"</span>
-                                    </span>
-                                )}
-                                {currentCategory && (
-                                    <span>
-                                        Category: <span className="text-primary-600 dark:text-primary-400">{currentCategory}</span>
-                                    </span>
-                                )}
-                                {currentTag && (
-                                    <span>
-                                        Tag: <span className="text-primary-600 dark:text-primary-400">#{currentTag}</span>
-                                    </span>
-                                )}
-                            </h2>
-                        </div>
-                    )}
-
-                    {filteredPosts ? (
-                        filteredPosts.length > 0 ? (
-                            <div className="space-y-8">
-                                <div className="grid gap-8 md:grid-cols-2">
-                                    {filteredPosts.map((post) => (
-                                        <BlogCard key={post.id} post={post} />
-                                    ))}
+                    <div className="grid gap-8 md:grid-cols-4">
+                        <div className="md:col-span-1">
+                            <div className="sticky top-24 space-y-8 rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm">
+                                <div className="space-y-4">
+                                    <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                        <Filter className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Categories
+                                    </h3>
+                                    {categoriesLoading ? (
+                                        <div className="space-y-2">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Skeleton key={i} className="h-8 w-full" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            <Badge
+                                                variant={!currentCategory ? "default" : "outline"}
+                                                className="cursor-pointer px-3 py-1 text-sm"
+                                                onClick={() => handleCategoryClick(null)}
+                                            >
+                                                All
+                                            </Badge>
+                                            {categories?.map((category) => (
+                                                <Badge
+                                                    key={category.id}
+                                                    variant={currentCategory === category.name ? "default" : "outline"}
+                                                    className="cursor-pointer px-3 py-1 text-sm"
+                                                    onClick={() => handleCategoryClick(category.name)}
+                                                >
+                                                    {category.name}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="flex items-center gap-2 text-lg font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                        <Tag className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Popular Tags
+                                    </h3>
+                                    {tagsLoading ? (
+                                        <div className="space-y-2">
+                                            {[...Array(8)].map((_, i) => (
+                                                <Skeleton key={i} className="h-6 w-3/4" />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {tags?.map((tag) => (
+                                                <Badge
+                                                    key={tag.id}
+                                                    variant={currentTag === tag.name ? "secondary" : "outline"}
+                                                    className={`cursor-pointer text-xs ${
+                                                        currentTag === tag.name 
+                                                        ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50' 
+                                                        : ''
+                                                    }`}
+                                                    onClick={() => handleTagClick(tag.name)}
+                                                >
+                                                    #{tag.name}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {(currentCategory || currentTag || searchTerm) && (
+                                    <Button
+                                        variant="outline"
+                                        className="w-full flex items-center justify-center gap-2 border-dashed"
+                                        onClick={() => {
+                                            dispatch(setCurrentCategory(null));
+                                            dispatch(setCurrentTag(null));
+                                            dispatch(setSearchTerm(''));
+                                            setLocalSearchTerm('');
+                                        }}
+                                    >
+                                        <X className="h-4 w-4" /> Clear All Filters
+                                    </Button>
+                                )}
                             </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-12 text-center shadow-sm">
-                                <Search className="h-16 w-16 text-light-text-muted dark:text-dark-text-muted mb-4" />
-                                <h3 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary mb-2">No matching posts</h3>
-                                <p className="text-light-text-muted dark:text-dark-text-muted max-w-md">
-                                    We couldn't find any blog posts with titles matching "{searchTerm}". Try a different search term.
-                                </p>
-                            </div>
-                        )
-                    ) : (
-                        <BlogList queryParams={queryParams} />
-                    )}
+                        </div>
+
+                        <div className="md:col-span-3">
+                            {(searchTerm || currentCategory || currentTag) && (
+                                <div className="mb-6 rounded-lg bg-light-bg-secondary dark:bg-dark-bg-secondary p-4 shadow-sm">
+                                    <h2 className="text-xl font-bold text-light-text-secondary dark:text-dark-text-secondary">
+                                        {searchTerm && (
+                                            <span>
+                                                Search results for: <span className="text-primary-600 dark:text-primary-400">"{searchTerm}"</span>
+                                            </span>
+                                        )}
+                                        {currentCategory && (
+                                            <span>
+                                                Category: <span className="text-primary-600 dark:text-primary-400">{currentCategory}</span>
+                                            </span>
+                                        )}
+                                        {currentTag && (
+                                            <span>
+                                                Tag: <span className="text-primary-600 dark:text-primary-400">#{currentTag}</span>
+                                            </span>
+                                        )}
+                                    </h2>
+                                </div>
+                            )}
+
+                            {filteredPosts ? (
+                                filteredPosts.length > 0 ? (
+                                    <div className="space-y-8">
+                                        <div className="grid gap-8 md:grid-cols-2">
+                                            {filteredPosts.map((post) => (
+                                                <BlogCard key={post.id} post={post} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-12 text-center shadow-sm">
+                                        <Search className="h-16 w-16 text-light-text-muted dark:text-dark-text-muted mb-4" />
+                                        <h3 className="text-2xl font-bold text-light-text-secondary dark:text-dark-text-secondary mb-2">No matching posts</h3>
+                                        <p className="text-light-text-muted dark:text-dark-text-muted max-w-md">
+                                            We couldn't find any blog posts with titles matching "{searchTerm}". Try a different search term.
+                                        </p>
+                                    </div>
+                                )
+                            ) : (
+                                <BlogList queryParams={queryParams} />
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

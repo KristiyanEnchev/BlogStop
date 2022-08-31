@@ -163,208 +163,210 @@ export default function BlogDetail() {
     const authorInitials = post.authorName.split(' ').map(n => n[0]).join('').toUpperCase();
 
     return (
-        <div className="container mx-auto py-8 px-4">
-            <Button
-                asChild
-                variant="ghost"
-                className="text-light-text-muted dark:text-dark-text-muted hover:text-light-text-secondary dark:hover:text-dark-text-secondary mb-8 -ml-2"
-            >
-                <Link to="/" className="flex items-center gap-2">
-                    <ArrowLeft className="h-4 w-4" /> Back to Blog
-                </Link>
-            </Button>
+        <div className="bg-light-bg dark:bg-dark-bg min-h-screen pb-16 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto pt-8">
+                <Button
+                    asChild
+                    variant="ghost"
+                    className="text-light-text-muted dark:text-dark-text-muted hover:text-light-text-secondary dark:hover:text-dark-text-secondary mb-8 -ml-2"
+                >
+                    <Link to="/" className="flex items-center gap-2">
+                        <ArrowLeft className="h-4 w-4" /> Back to Blog
+                    </Link>
+                </Button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-3">
-                    <article className="space-y-8 text-light-text dark:text-dark-text">
-                        {post.featuredImage && (
-                            <div className="overflow-hidden rounded-xl shadow-md">
-                                <img
-                                    src={post.featuredImage}
-                                    alt={post.title}
-                                    className="h-auto w-full object-cover max-h-[500px]"
-                                />
-                            </div>
-                        )}
-
-                        <header className="space-y-6">
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-light-text-secondary dark:text-dark-text-secondary leading-tight">
-                                {post.title}
-                            </h1>
-
-                            <div className="flex items-center gap-4 text-sm text-light-text-muted dark:text-dark-text-muted lg:hidden">
-                                <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" /> {formatDate(post.createdDate)}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div className="lg:col-span-3">
+                        <article className="space-y-8 text-light-text dark:text-dark-text">
+                            {post.featuredImage && (
+                                <div className="overflow-hidden rounded-xl shadow-md">
+                                    <img
+                                        src={post.featuredImage}
+                                        alt={post.title}
+                                        className="h-auto w-full object-cover max-h-[500px]"
+                                    />
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <Clock className="h-4 w-4" /> {readingTime}
-                                </div>
-                            </div>
-                        </header>
+                            )}
 
-                        <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-light-text-secondary dark:prose-headings:text-dark-text-secondary prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-img:rounded-xl"
-                            dangerouslySetInnerHTML={{ __html: post.content }} />
-                    </article>
-                </div>
+                            <header className="space-y-6">
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-light-text-secondary dark:text-dark-text-secondary leading-tight">
+                                    {post.title}
+                                </h1>
 
-                <div className="lg:col-span-1">
-                    <div className="space-y-8">
-                        {/* Author Card */}
-                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm">
-                            <div className="flex flex-col items-center text-center space-y-4">
-                                <Avatar className="h-20 w-20 border-2 border-primary-200 dark:border-primary-800">
-                                    {post.authorImage ? (
-                                        <AvatarImage src={post.authorImage} alt={post.authorName} />
-                                    ) : (
-                                        <AvatarFallback className="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 text-xl">
-                                            {authorInitials}
-                                        </AvatarFallback>
-                                    )}
-                                </Avatar>
-                                <div>
-                                    <div className="font-bold text-lg text-light-text-secondary dark:text-dark-text-secondary">
-                                        {post.authorName}
+                                <div className="flex items-center gap-4 text-sm text-light-text-muted dark:text-dark-text-muted lg:hidden">
+                                    <div className="flex items-center gap-1">
+                                        <Calendar className="h-4 w-4" /> {formatDate(post.createdDate)}
                                     </div>
-                                    <div className="text-sm text-light-text-muted dark:text-dark-text-muted">
-                                        Author
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="h-4 w-4" /> {readingTime}
                                     </div>
                                 </div>
-                                <p className="text-sm text-light-text-muted dark:text-dark-text-muted">
-                                    Content creator passionate about sharing knowledge and insights on various topics.
-                                </p>
-                            </div>
-                        </div>
+                            </header>
 
-                        {/* Post Info */}
-                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
-                            <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Post Info
-                            </h3>
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-light-text-muted dark:text-dark-text-muted">Published</span>
-                                    <span className="text-light-text-secondary dark:text-dark-text-secondary">{formatDate(post.createdDate)}</span>
+                            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-light-text-secondary dark:prose-headings:text-dark-text-secondary prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-img:rounded-xl"
+                                dangerouslySetInnerHTML={{ __html: post.content }} />
+                        </article>
+                    </div>
+
+                    <div className="lg:col-span-1">
+                        <div className="space-y-8">
+                            {/* Author Card */}
+                            <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm">
+                                <div className="flex flex-col items-center text-center space-y-4">
+                                    <Avatar className="h-20 w-20 border-2 border-primary-200 dark:border-primary-800">
+                                        {post.authorImage ? (
+                                            <AvatarImage src={post.authorImage} alt={post.authorName} />
+                                        ) : (
+                                            <AvatarFallback className="bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 text-xl">
+                                                {authorInitials}
+                                            </AvatarFallback>
+                                        )}
+                                    </Avatar>
+                                    <div>
+                                        <div className="font-bold text-lg text-light-text-secondary dark:text-dark-text-secondary">
+                                            {post.authorName}
+                                        </div>
+                                        <div className="text-sm text-light-text-muted dark:text-dark-text-muted">
+                                            Author
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-light-text-muted dark:text-dark-text-muted">
+                                        Content creator passionate about sharing knowledge and insights on various topics.
+                                    </p>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-light-text-muted dark:text-dark-text-muted">Reading time</span>
-                                    <span className="text-light-text-secondary dark:text-dark-text-secondary">{readingTime}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-light-text-muted dark:text-dark-text-muted">Views</span>
-                                    <span className="text-light-text-secondary dark:text-dark-text-secondary">{post.viewCount}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-light-text-muted dark:text-dark-text-muted">Likes</span>
-                                    <span className="text-light-text-secondary dark:text-dark-text-secondary">{post.numberOfLikes}</span>
-                                </div>
                             </div>
-                        </div>
 
-                        {/* Categories */}
-                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
-                            <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
-                                <Bookmark className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Categories
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {post.categories.map((category) => (
-                                    <Badge
-                                        key={category}
-                                        variant="secondary"
-                                        className="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
-                                    >
-                                        {category}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Tags */}
-                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
-                            <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
-                                <TagIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Tags
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {post.tags.map((tag) => (
-                                    <Badge key={tag} variant="outline" className="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50">
-                                        #{tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
-                            <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
-                                <MessageSquare className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Actions
-                            </h3>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    variant={post.isLikedByUser ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={handleLikeToggle}
-                                    className={post.isLikedByUser ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 border-red-200 dark:border-red-800" : "text-light-text dark:text-dark-text"}
-                                >
-                                    <Heart className={`h-4 w-4 mr-1 ${post.isLikedByUser ? "fill-red-800 dark:fill-red-300" : ""}`} />
-                                    Like
-                                </Button>
-
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleShare}
-                                    className="text-light-text dark:text-dark-text"
-                                >
-                                    <Share2 className="h-4 w-4 mr-1" /> Share
-                                </Button>
-                            </div>
-                        </div>
-                        {isAuthor && (
+                            {/* Post Info */}
                             <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
                                 <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
-                                    <MessageSquare className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Author Actions
+                                    <Clock className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Post Info
                                 </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-light-text-muted dark:text-dark-text-muted">Published</span>
+                                        <span className="text-light-text-secondary dark:text-dark-text-secondary">{formatDate(post.createdDate)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-light-text-muted dark:text-dark-text-muted">Reading time</span>
+                                        <span className="text-light-text-secondary dark:text-dark-text-secondary">{readingTime}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-light-text-muted dark:text-dark-text-muted">Views</span>
+                                        <span className="text-light-text-secondary dark:text-dark-text-secondary">{post.viewCount}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-light-text-muted dark:text-dark-text-muted">Likes</span>
+                                        <span className="text-light-text-secondary dark:text-dark-text-secondary">{post.numberOfLikes}</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                                {isAuthor && (
+                            {/* Categories */}
+                            <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
+                                <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
+                                    <Bookmark className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Categories
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {post.categories.map((category) => (
+                                        <Badge
+                                            key={category}
+                                            variant="secondary"
+                                            className="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
+                                        >
+                                            {category}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Tags */}
+                            <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
+                                <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
+                                    <TagIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Tags
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {post.tags.map((tag) => (
+                                        <Badge key={tag} variant="outline" className="bg-primary-100 text-primary-800 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50">
+                                            #{tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
+                                <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Actions
+                                </h3>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                        variant={post.isLikedByUser ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={handleLikeToggle}
+                                        className={post.isLikedByUser ? "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 border-red-200 dark:border-red-800" : "text-light-text dark:text-dark-text"}
+                                    >
+                                        <Heart className={`h-4 w-4 mr-1 ${post.isLikedByUser ? "fill-red-800 dark:fill-red-300" : ""}`} />
+                                        Like
+                                    </Button>
+
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        asChild
+                                        onClick={handleShare}
                                         className="text-light-text dark:text-dark-text"
                                     >
-                                        <Link to={`/edit/${post.id}`}>
-                                            <Edit className="h-4 w-4 mr-1" /> Edit
-                                        </Link>
+                                        <Share2 className="h-4 w-4 mr-1" /> Share
                                     </Button>
-                                )}
-
-                                {isAuthor && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setShowDeleteConfirm(true)}
-                                        className="ml-2 text-light-text dark:text-dark-text"
-                                    >
-                                        <Trash2 className="h-4 w-4 mr-1" /> Delete
-                                    </Button>
-                                )}
+                                </div>
                             </div>
-                        )}
+                            {isAuthor && (
+                                <div className="rounded-xl bg-light-bg-secondary dark:bg-dark-bg-secondary p-6 shadow-sm space-y-4">
+                                    <h3 className="font-medium text-light-text-secondary dark:text-dark-text-secondary flex items-center gap-2">
+                                        <MessageSquare className="h-4 w-4 text-primary-600 dark:text-primary-400" /> Author Actions
+                                    </h3>
+
+                                    {isAuthor && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                            className="text-light-text dark:text-dark-text"
+                                        >
+                                            <Link to={`/edit/${post.id}`}>
+                                                <Edit className="h-4 w-4 mr-1" /> Edit
+                                            </Link>
+                                        </Button>
+                                    )}
+
+                                    {isAuthor && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setShowDeleteConfirm(true)}
+                                            className="ml-2 text-light-text dark:text-dark-text"
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-1" /> Delete
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
+
+                <CommentSection postId={post.id} />
+
+                <ConfirmDialog
+                    open={showDeleteConfirm}
+                    onOpenChange={setShowDeleteConfirm}
+                    title="Delete Post"
+                    description="Are you sure you want to delete this post? This action cannot be undone."
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    onConfirm={handleDelete}
+                    isLoading={isDeleting}
+                />
             </div>
-
-            <CommentSection postId={post.id} />
-
-            <ConfirmDialog
-                open={showDeleteConfirm}
-                onOpenChange={setShowDeleteConfirm}
-                title="Delete Post"
-                description="Are you sure you want to delete this post? This action cannot be undone."
-                confirmText="Delete"
-                cancelText="Cancel"
-                onConfirm={handleDelete}
-                isLoading={isDeleting}
-            />
         </div>
     );
 }
