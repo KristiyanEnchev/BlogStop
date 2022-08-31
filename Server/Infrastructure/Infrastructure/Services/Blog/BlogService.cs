@@ -227,28 +227,36 @@ namespace Infrastructure.Services.Blog
         public async Task<BlogPostDto> CreateBlogPostAsync(BlogPostRequest request, CancellationToken cancellationToken = default)
         {
             var categories = await _categoryRepository
-                .AsNoTracking()
+                .AsTracking()
                 .Where(c => request.CategoryIds.Contains(c.Id))
                 .ToListAsync(cancellationToken);
 
-            var existingTags = await _tagRepository
-                .AsNoTracking()
-                .Where(t => request.Tags.Contains(t.Name))
-                .ToListAsync(cancellationToken);
+            var tags = new List<Tag>();
 
-            var newTags = request.Tags
-                .Where(tag => existingTags.All(et => et.Name != tag))
-                .Select(tag => new Tag { Name = tag, Slug = tag.ToLower().Replace(" ", "-") })
-                .ToList();
-
-            if (newTags.Any())
+            foreach (var tagName in request.Tags)
             {
-                await _tagRepository.AddRangeAsync(newTags, cancellationToken);
-                await _tagRepository.SaveChangesAsync(cancellationToken);
-            }
+                var existingTag = await _tagRepository
+                    .AsTracking()
+                    .FirstOrDefaultAsync(t => t.Name == tagName, cancellationToken);
 
-            var allTags = new List<Tag>(existingTags);
-            allTags.AddRange(newTags);
+                if (existingTag != null)
+                {
+                    tags.Add(existingTag);
+                }
+                else
+                {
+                    var newTag = new Tag
+                    {
+                        Name = tagName,
+                        Slug = tagName.ToLower().Replace(" ", "-")
+                    };
+
+                    await _tagRepository.AddAsync(newTag, cancellationToken);
+                    await _tagRepository.SaveChangesAsync(cancellationToken);
+
+                    tags.Add(newTag);
+                }
+            }
 
             var newPost = new BlogPost
             {
@@ -259,7 +267,7 @@ namespace Infrastructure.Services.Blog
                 FeaturedImage = request.FeaturedImage,
                 AuthorId = request.AuthorId,
                 Categories = categories,
-                Tags = allTags,
+                Tags = tags,
                 CreatedDate = DateTime.UtcNow,
                 IsPublished = true,
             };
@@ -308,12 +316,23 @@ namespace Infrastructure.Services.Blog
         {
             var post = await _blogRepository
                 .AsTracking()
+                .Include(bp => bp.Tags)          
+                .Include(bp => bp.Categories)   
+                .Include(bp => bp.Comments)     
                 .FirstOrDefaultAsync(bp => bp.Id == postId, cancellationToken);
 
             if (post == null) return false;
 
+            post.Tags.Clear();
+            post.Categories.Clear();
+
+            post.Comments?.Clear();
+
+            await _blogRepository.SaveChangesAsync(cancellationToken);
+
             await _blogRepository.DeleteAsync(post, cancellationToken);
             await _blogRepository.SaveChangesAsync(cancellationToken);
+
             return true;
         }
 
