@@ -185,17 +185,6 @@ export default function CreateEditBlogPage() {
     const content = watch('content');
     const previewContent = content || 'Nothing to preview yet...';
 
-    React.useEffect(() => {
-        if (categories) {
-            console.log('Categories data:', categories);
-            console.log('Category options:', categoryOptions);
-        }
-        if (tags) {
-            console.log('Tags data:', tags);
-            console.log('Tag options:', tagOptions);
-        }
-    }, [categories, tags, categoryOptions, tagOptions]);
-
     if (isLoading) {
         return (
             <div className="container mx-auto py-8 px-4 text-light-text dark:text-dark-text">
