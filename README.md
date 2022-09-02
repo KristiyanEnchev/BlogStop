@@ -7,8 +7,6 @@ The backend is built on .NET 6 with Clean Architecture patterns (Domain, Applica
 
 <p align="center" style="display: flex; justify-content: space-between; align-items: center;">
     <img src="Client/public/BlogStop1.png" alt="BlogStop 1" style="width: 49%; margin: 0;">
-</p>
-<p align="center" style="display: flex; justify-content: space-between; align-items: center;">
     <img src="Client/public/BlogStop2.png" alt="BlogStop 4" style="width: 49%; margin: 0;">
 </p>
 
