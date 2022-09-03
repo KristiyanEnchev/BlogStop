@@ -1,8 +1,11 @@
-# BlogStop 📝 ## 🏗️ Overview
+# BlogStop 📝
+
+## 🏗️ Overview
 
 **BlogStop** A modern full-stack blogging platform built using .NET 6 and React 18, it is a full-featured blogging platform built using modern technologies and following clean architecture principles. The application allows users to create, edit, and manage blog posts, comments, categories, and tags. It features a responsive UI, rich text editing, user authentication, and a robust API.
 
 The backend is built on .NET 6 with Clean Architecture patterns (Domain, Application, Infrastructure, and API layers), while the frontend utilizes React 18 with TypeScript, Redux Toolkit, and TailwindCSS for a sleek and responsive user experience.
+
 ---
 
 <p align="center" style="display: flex; justify-content: space-between; align-items: center;">
@@ -108,12 +111,14 @@ The frontend follows a modular approach with:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+---
 
-- **Your Name** - [GitHub Profile](https://github.com/KristiyanEnchev)
+## 👨‍💻 Show your support
+
+Give a ⭐ if you like this project!
 
 ---
 
-## Show your support
+## 🧏‍♂️️ Author
 
-Give a ⭐ if you like this project!
+[![Facebook](https://img.shields.io/badge/kristiyan.enchev-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/kristiqn.enchev.5/) [![Instagram](https://img.shields.io/badge/kristiyan-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/kristiyan_e/) [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:kristiqnenchevv@gmail.com)
